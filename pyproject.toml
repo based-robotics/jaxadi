@@ -7,6 +7,8 @@ dependencies = ["casadi", "jax"]
 readme = "README.md"
 requires-python = ">=3.10"
 
+optional-dependencies = { "dev" = ["pre-commit"] }
+
 [project.urls]
 homepage = "https://github.com/based-robotics/jaxadi"
 repository = "https://github.com/based-robotics/jaxadi.git"

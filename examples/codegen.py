@@ -9,7 +9,6 @@ def evaluate_cf(*args):
     inputs = args
     outputs = [jnp.zeros(out) for out in [(3, 1)]]
     work = jnp.zeros((3, 1))
-    print('zhopa')
 
     work = work.at[0].set(inputs[0][0])
     work = work.at[0].set(work[0] * work[0])

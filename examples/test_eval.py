@@ -18,4 +18,3 @@ print(evaluate_cf(jnp.array([1.0, 2.0, 3.0]).reshape(3, 1), jnp.array([[2.0]])))
 print(evaluate_cf(jnp.array([1.0, 2.0, 3.0]).reshape(3, 1), jnp.array([[2.0]])))
 print(evaluate_cf(jnp.array([1.0, 2.0, 3.0]).reshape(3, 1), jnp.array([[2.0]])))
 print(evaluate_cf(jnp.array([1.0, 2.0, 3.0]).reshape(3, 1), jnp.array([[2.0]])))
-
