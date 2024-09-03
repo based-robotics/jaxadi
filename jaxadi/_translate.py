@@ -5,7 +5,7 @@ from casadi import OP_CONST, OP_INPUT, OP_OUTPUT, OP_SQ, Function
 from ._ops import OP_JAX_DICT
 
 
-def transcribe(func: Function) -> list[str]:
+def translate(func: Function) -> list[str]:
     # Get information about Casadi function
     n_instr = func.n_instructions()
     n_out = func.n_out()  # number of outputs in the function

@@ -1,5 +1,5 @@
 import casadi as cs
-from jaxadi import transcribe
+from jaxadi import translate
 
 # x = cs.SX.sym("x", 2)
 
@@ -12,5 +12,5 @@ print(casadi_function)
 
 # * Write codegen to file
 with open("codegen.py", "w") as codegen_file:
-    for cg_str in transcribe(casadi_function):
+    for cg_str in translate(casadi_function):
         codegen_file.write(cg_str)
