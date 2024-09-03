@@ -33,8 +33,7 @@ jax_fn = convert(fk, compile=True)
 
 # Evaluate the function performance
 q_val = ca.np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0, 0])
-jax_q_val = jnp.array([[0.1], [0.2], [0.3], [0.4], [
-                      0.5], [0.6], [0.7], [0], [0]])
+jax_q_val = jnp.array([[0.1], [0.2], [0.3], [0.4], [0.5], [0.6], [0.7], [0], [0]])
 
 print("Casadi evaluation:")
 print(fk(q_val))
@@ -53,6 +52,8 @@ print(jax_fn(jax_q_val))
 # Second part
 # Casadi: Sequential Evaluation
 N = int(1e7)
+
+
 def casadi_sequential_evaluation():
     for _ in range(N):
         fk(q_val)
@@ -61,8 +62,7 @@ def casadi_sequential_evaluation():
 # JAX: Vectorized Evaluation using vmap
 jax_q_vals = jnp.tile(jax_q_val, (N, 1, 1))  # Create a batch of 100 inputs
 print(jax_q_vals.shape)
-jax_fn_vectorized = jax.vmap(jax_fn, in_axes=(
-    1,), out_axes=1)  # Vectorize the function
+jax_fn_vectorized = jax.vmap(jax_fn, in_axes=(1,), out_axes=1)  # Vectorize the function
 
 # Performance comparison
 print("Performance comparison:")
