@@ -21,6 +21,6 @@ def convert(casadi_fn: Function, compile=False) -> Callable[..., Any]:
     jax_fn = declare(jax_str)
 
     if compile:
-        compile_fn(jax_fn)
+        compile_fn(jax_fn, casadi_fn)
 
     return jax_fn

@@ -1,10 +1,12 @@
+import timeit
+
 import casadi as ca
+import jax.numpy as jnp
 import pinocchio as pin
 import pinocchio.casadi as cpin
 from robot_descriptions.panda_description import URDF_PATH
-import jax.numpy as jnp
 
-from jaxadi import translate, convert
+from jaxadi import convert, translate
 
 # Load the Panda robot model
 model = pin.buildModelFromUrdf(URDF_PATH)
@@ -30,19 +32,18 @@ print(translate(fk, add_import=True, add_jit=True))
 jax_fn = convert(fk, compile=True)
 
 # Evaluate the function performance
-import timeit
-
 q_val = ca.np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0, 0])
-jax_q_val = jnp.array(q_val)
+jax_q_val = jnp.array([[0.1], [0.2], [0.3], [0.4], [0.5], [0.6], [0.7], [0], [0]])
 
 print("Casadi evaluation:")
 print(fk(q_val))
 print("JAX evaluation:")
 print(jax_fn(jax_q_val))
 
-print("Performance comparison:")
-print("Casadi evaluation:")
-print(timeit.timeit(lambda: fk(q_val), number=100))
+# pwease do not run, it will take a lot of time
+# print("Performance comparison:")
+# print("Casadi evaluation:")
+# print(timeit.timeit(lambda: fk(q_val), number=100))
 
-print("JAX evaluation:")
-print(timeit.timeit(lambda: jax_fn(jax_q_val), number=100))
+# print("JAX evaluation:")
+# print(timeit.timeit(lambda: jax_fn(jax_q_val), number=100))

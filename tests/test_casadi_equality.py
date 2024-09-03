@@ -1,9 +1,9 @@
-
-import pytest
 import casadi as ca
-from jaxadi import convert, translate
 import jax.numpy as jnp
 import numpy as np
+import pytest
+
+from jaxadi import convert, translate
 
 # Set a fixed seed for reproducibility
 np.random.seed(42)
@@ -28,16 +28,16 @@ def compare_results(casadi_f, jax_f, *inputs):
 
 
 def test_simo_trig():
-    x = ca.SX.sym('x', 1, 1)
-    casadi_f = ca.Function('simo_trig', [x], [ca.sin(x), ca.cos(x)])
+    x = ca.SX.sym("x", 1, 1)
+    casadi_f = ca.Function("simo_trig", [x], [ca.sin(x), ca.cos(x)])
     jax_f = convert(casadi_f)
     x_val = np.random.randn(1, 1)
     compare_results(casadi_f, jax_f, x_val)
 
 
 def test_simo_poly():
-    x = ca.SX.sym('x', 1, 1)
-    casadi_f = ca.Function('simo_poly', [x], [x**2, x**3, ca.sqrt(x)])
+    x = ca.SX.sym("x", 1, 1)
+    casadi_f = ca.Function("simo_poly", [x], [x**2, x**3, ca.sqrt(x)])
     jax_f = convert(casadi_f)
     x_val = np.random.randn(1, 1)
     x_val = np.abs(x_val)  # Ensure positive for sqrt
@@ -45,17 +45,17 @@ def test_simo_poly():
 
 
 def test_simo_matrix():
-    x = ca.SX.sym('x', 3, 3)
-    casadi_f = ca.Function('simo_matrix', [x], [ca.trace(x), ca.det(x)])
+    x = ca.SX.sym("x", 3, 3)
+    casadi_f = ca.Function("simo_matrix", [x], [ca.trace(x), ca.det(x)])
     jax_f = convert(casadi_f)
     x_val = np.random.randn(3, 3)
     compare_results(casadi_f, jax_f, x_val)
 
 
 def test_miso_add():
-    x = ca.SX.sym('x', 3, 1)
-    y = ca.SX.sym('y', 3, 1)
-    casadi_f = ca.Function('miso_add', [x, y], [x + y])
+    x = ca.SX.sym("x", 3, 1)
+    y = ca.SX.sym("y", 3, 1)
+    casadi_f = ca.Function("miso_add", [x, y], [x + y])
     jax_f = convert(casadi_f)
     x_val = np.random.randn(3, 1)
     y_val = np.random.randn(3, 1)
@@ -63,9 +63,9 @@ def test_miso_add():
 
 
 def test_miso_multiply():
-    x = ca.SX.sym('x', 3, 3)
-    y = ca.SX.sym('y', 3, 3)
-    casadi_f = ca.Function('miso_multiply', [x, y], [x * y])
+    x = ca.SX.sym("x", 3, 3)
+    y = ca.SX.sym("y", 3, 3)
+    casadi_f = ca.Function("miso_multiply", [x, y], [x * y])
     jax_f = convert(casadi_f)
     x_val = np.random.randn(3, 3)
     y_val = np.random.randn(3, 3)
@@ -73,10 +73,10 @@ def test_miso_multiply():
 
 
 def test_miso_combined():
-    x = ca.SX.sym('x', 3, 3)
-    y = ca.SX.sym('y', 3, 3)
-    z = ca.SX.sym('z', 3, 3)
-    casadi_f = ca.Function('miso_combined', [x, y, z], [ca.mtimes(x, y) + z])
+    x = ca.SX.sym("x", 3, 3)
+    y = ca.SX.sym("y", 3, 3)
+    z = ca.SX.sym("z", 3, 3)
+    casadi_f = ca.Function("miso_combined", [x, y, z], [ca.mtimes(x, y) + z])
     jax_f = convert(casadi_f)
     x_val = np.random.randn(3, 3)
     y_val = np.random.randn(3, 3)
@@ -85,21 +85,23 @@ def test_miso_combined():
 
 
 def test_mimo_arith():
-    x = ca.SX.sym('x', 3, 3)
-    y = ca.SX.sym('y', 3, 3)
-    casadi_f = ca.Function('mimo_arith', [x, y], [x + y, x - y])
+    x = ca.SX.sym("x", 3, 3)
+    y = ca.SX.sym("y", 3, 3)
+    casadi_f = ca.Function("mimo_arith", [x, y], [x + y, x - y])
     jax_f = convert(casadi_f)
     x_val = np.random.randn(3, 3)
     y_val = np.random.randn(3, 3)
     compare_results(casadi_f, jax_f, x_val, y_val)
+
+
 #
 #
 
 
 def test_mimo_trig():
-    x = ca.SX.sym('x', 3, 3)
-    y = ca.SX.sym('y', 3, 3)
-    casadi_f = ca.Function('mimo_trig', [x, y], [ca.sin(x), ca.cos(y)])
+    x = ca.SX.sym("x", 3, 3)
+    y = ca.SX.sym("y", 3, 3)
+    casadi_f = ca.Function("mimo_trig", [x, y], [ca.sin(x), ca.cos(y)])
     jax_f = convert(casadi_f)
     x_val = np.random.randn(3, 3)
     y_val = np.random.randn(3, 3)
@@ -107,11 +109,10 @@ def test_mimo_trig():
 
 
 def test_mimo_complex():
-    x = ca.SX.sym('x', 3, 3)
-    y = ca.SX.sym('y', 3, 3)
-    z = ca.SX.sym('z', 3, 3)
-    casadi_f = ca.Function('mimo_complex', [x, y, z], [
-                           ca.mtimes(x, y), ca.inv(z), x + z])
+    x = ca.SX.sym("x", 3, 3)
+    y = ca.SX.sym("y", 3, 3)
+    z = ca.SX.sym("z", 3, 3)
+    casadi_f = ca.Function("mimo_complex", [x, y, z], [ca.mtimes(x, y), ca.inv(z), x + z])
     jax_f = convert(casadi_f)
     x_val = np.random.randn(3, 3)
     y_val = np.random.randn(3, 3)
@@ -120,16 +121,16 @@ def test_mimo_complex():
 
 
 def test_sin():
-    x = ca.SX.sym('x', 1, 1)
-    casadi_f = ca.Function('sin', [x], [ca.sin(x)])
+    x = ca.SX.sym("x", 1, 1)
+    casadi_f = ca.Function("sin", [x], [ca.sin(x)])
     jax_f = convert(casadi_f)
     x_val = np.random.randn(1, 1)
     compare_results(casadi_f, jax_f, x_val)
 
 
 def test_cos():
-    x = ca.SX.sym('x', 1, 1)
-    casadi_f = ca.Function('cos', [x], [ca.cos(x)])
+    x = ca.SX.sym("x", 1, 1)
+    casadi_f = ca.Function("cos", [x], [ca.cos(x)])
     jax_f = convert(casadi_f)
     x_val = np.random.randn(1, 1)
     print(x_val.shape)
@@ -138,9 +139,9 @@ def test_cos():
 
 
 def test_mtimes():
-    x = ca.SX.sym('x', 2, 2)
-    y = ca.SX.sym('y', 2, 2)
-    casadi_f = ca.Function('mtimes', [x, y], [x @ y])
+    x = ca.SX.sym("x", 2, 2)
+    y = ca.SX.sym("y", 2, 2)
+    casadi_f = ca.Function("mtimes", [x, y], [x @ y])
     jax_f = convert(casadi_f)
     # x_val = np.random.randn(2, 2)
     # y_val = np.random.randn(2, 2)
@@ -151,16 +152,16 @@ def test_mtimes():
 
 
 def test_inv():
-    x = ca.SX.sym('x', 3, 3)
-    casadi_f = ca.Function('inv', [x], [ca.inv(x)])
+    x = ca.SX.sym("x", 3, 3)
+    casadi_f = ca.Function("inv", [x], [ca.inv(x)])
     jax_f = convert(casadi_f)
     x_val = np.random.randn(3, 3)
     compare_results(casadi_f, jax_f, x_val)
 
 
 def test_norm_2():
-    x = ca.SX.sym('x', 3, 1)
-    casadi_f = ca.Function('norm_2', [x], [ca.norm_2(x)])
+    x = ca.SX.sym("x", 3, 1)
+    casadi_f = ca.Function("norm_2", [x], [ca.norm_2(x)])
     jax_f = convert(casadi_f)
     x_val = np.random.randn(3, 1)
     print(translate(casadi_f))
@@ -168,8 +169,8 @@ def test_norm_2():
 
 
 def test_sum1():
-    x = ca.SX.sym('x', 2, 2)
-    casadi_f = ca.Function('sum1', [x], [ca.sum1(x)])
+    x = ca.SX.sym("x", 2, 2)
+    casadi_f = ca.Function("sum1", [x], [ca.sum1(x)])
     x_val = np.random.randn(2, 2)
     print(ca.sum1(x_val).shape)
     jax_f = convert(casadi_f)
@@ -178,9 +179,9 @@ def test_sum1():
 
 
 def test_dot():
-    x = ca.SX.sym('x', 3, 1)
-    y = ca.SX.sym('y', 3, 1)
-    casadi_f = ca.Function('dot', [x, y], [ca.dot(x, y)])
+    x = ca.SX.sym("x", 3, 1)
+    y = ca.SX.sym("y", 3, 1)
+    casadi_f = ca.Function("dot", [x, y], [ca.dot(x, y)])
     jax_f = convert(casadi_f)
     x_val = np.random.randn(3, 1)
     y_val = np.random.randn(3, 1)
@@ -188,17 +189,17 @@ def test_dot():
 
 
 def test_transpose():
-    x = ca.SX.sym('x', 3, 3)
-    casadi_f = ca.Function('transpose', [x], [ca.transpose(x)])
+    x = ca.SX.sym("x", 3, 3)
+    casadi_f = ca.Function("transpose", [x], [ca.transpose(x)])
     jax_f = convert(casadi_f)
     x_val = np.random.randn(3, 3)
     compare_results(casadi_f, jax_f, x_val)
 
 
 def test_add():
-    x = ca.SX.sym('x', 3, 3)
-    y = ca.SX.sym('y', 3, 3)
-    casadi_f = ca.Function('add', [x, y], [x + y])
+    x = ca.SX.sym("x", 3, 3)
+    y = ca.SX.sym("y", 3, 3)
+    casadi_f = ca.Function("add", [x, y], [x + y])
     jax_f = convert(casadi_f)
     x_val = np.random.randn(3, 3)
     y_val = np.random.randn(3, 3)
@@ -206,9 +207,9 @@ def test_add():
 
 
 def test_multiply():
-    x = ca.SX.sym('x', 3, 3)
-    y = ca.SX.sym('y', 3, 3)
-    casadi_f = ca.Function('multiply', [x, y], [x * y])
+    x = ca.SX.sym("x", 3, 3)
+    y = ca.SX.sym("y", 3, 3)
+    casadi_f = ca.Function("multiply", [x, y], [x * y])
     jax_f = convert(casadi_f)
     x_val = np.random.randn(3, 3)
     y_val = np.random.randn(3, 3)
@@ -216,9 +217,9 @@ def test_multiply():
 
 
 def test_combined():
-    x = ca.SX.sym('x', 3, 3)
-    y = ca.SX.sym('y', 3, 3)
-    casadi_f = ca.Function('combined', [x, y], [ca.mtimes(x, y) + ca.inv(x)])
+    x = ca.SX.sym("x", 3, 3)
+    y = ca.SX.sym("y", 3, 3)
+    casadi_f = ca.Function("combined", [x, y], [ca.mtimes(x, y) + ca.inv(x)])
     jax_f = convert(casadi_f)
     x_val = np.random.randn(3, 3)
     y_val = np.random.randn(3, 3)
