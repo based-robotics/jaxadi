@@ -2,10 +2,10 @@ import timeit
 import jax
 import casadi as ca
 import jax.numpy as jnp
+import numpy as np
 import pinocchio as pin
 import pinocchio.casadi as cpin
 from robot_descriptions.panda_description import URDF_PATH
-
 from jaxadi import convert, translate
 
 # Load the Panda robot model
@@ -31,43 +31,62 @@ print(translate(fk, add_import=True, add_jit=True))
 
 jax_fn = convert(fk, compile=True)
 
-# Evaluate the function performance
-q_val = ca.np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0, 0])
-jax_q_val = jnp.array([[0.1], [0.2], [0.3], [0.4], [0.5], [0.6], [0.7], [0], [0]])
+# Function to generate random inputs
+def generate_random_inputs(N):
+    return np.random.rand(N, model.nq)
 
-print("Casadi evaluation:")
-print(fk(q_val))
-print("JAX evaluation:")
-print(jax_fn(jax_q_val))
-
-# pwease do not run, it will take a lot of time
-# print("Performance comparison:")
-# print("Casadi evaluation:")
-# print(timeit.timeit(lambda: fk(q_val), number=100))
-#
-# print("JAX evaluation:")
-# print(timeit.timeit(lambda: jax_fn(jax_q_val), number=100))
-
-
-# Second part
 # Casadi: Sequential Evaluation
-N = int(1e7)
+def casadi_sequential_evaluation(q_vals):
+    return [fk(q) for q in q_vals]
 
+# JAX: Vectorized Evaluation
+jax_fn_vectorized = jax.jit(jax.vmap(jax_fn))  # Vectorize the function
 
-def casadi_sequential_evaluation():
-    for _ in range(N):
-        fk(q_val)
+# Evaluate the function performance for a batch
+N_test = 1000  # Small number for initial test
+q_vals_test = generate_random_inputs(N_test)
+jax_q_vals_test = jnp.array(q_vals_test).reshape(N_test, model.nq, 1)  # Create a batch of 1000
 
+print("Casadi evaluation (batch of 1000):")
+casadi_results_test = np.array(casadi_sequential_evaluation(q_vals_test))[:,:,0]
+print(f"First result: {casadi_results_test[0]}")
+print(f"Last result: {casadi_results_test[-1]}")
+print(f"Shape: {casadi_results_test.shape}")
 
-# JAX: Vectorized Evaluation using vmap
-jax_q_vals = jnp.tile(jax_q_val, (N, 1, 1))  # Create a batch of 100 inputs
-print(jax_q_vals.shape)
-jax_fn_vectorized = jax.vmap(jax_fn, in_axes=(1,), out_axes=1)  # Vectorize the function
+print("\nJAX evaluation (batch of 1000):")
+jax_results_test = np.array(jax_fn_vectorized(jax_q_vals_test))[0,:,:,0]
+print(f"First result: {jax_results_test[0]}")
+print(f"Last result: {jax_results_test[-1]}")
+print(f"Shape: {jax_results_test.shape}")
+
+print("\nVerifying initial batch results:")
+print("Results match:", np.allclose(casadi_results_test, jax_results_test, atol=1e-6))
+
+# Warm-up call for JAX
+print("\nPerforming warm-up call for JAX...")
+_ = jax_fn_vectorized(jax_q_vals_test)
+print("Warm-up call completed.")
 
 # Performance comparison
-print("Performance comparison:")
-print(f"Casadi sequential evaluation ({N} times):")
-print(timeit.timeit(casadi_sequential_evaluation, number=1))
+print("\nPerformance comparison:")
+N = int(1e6)  # Number of evaluations for performance test
 
-print("JAX vectorized evaluation using vmap:")
-print(timeit.timeit(lambda: jax_fn_vectorized(jax_q_vals), number=1))
+# Generate new random inputs for performance comparison
+q_vals = generate_random_inputs(N)
+jax_q_vals = jnp.array(q_vals).reshape(N, model.nq, 1)
+
+print(f"Casadi sequential evaluation ({N} times):")
+casadi_time = timeit.timeit(lambda: np.array(casadi_sequential_evaluation(q_vals))[:,:,0], number=1)
+print(f"Time: {casadi_time:.4f} seconds")
+
+print(f"\nJAX vectorized evaluation ({N} times):")
+jax_time = timeit.timeit(lambda: np.array(jax_fn_vectorized(jax_q_vals))[0,:,:,0], number=1)
+print(f"Time: {jax_time:.4f} seconds")
+
+print(f"\nSpeedup factor: {casadi_time / jax_time:.2f}x")
+
+# Verify results
+print("\nVerifying performance test results:")
+casadi_results = np.array(casadi_sequential_evaluation(q_vals[:50]))[:,:,0]
+jax_results = np.array(jax_fn_vectorized(jax_q_vals[:50]))[0,:,:,0]
+print("First 50 results match:", np.allclose(casadi_results, jax_results, atol=1e-6))
