@@ -91,6 +91,6 @@ print(f"\nSpeedup factor: {casadi_time / jax_time:.2f}x")
 
 # Verify results
 print("\nVerifying performance test results:")
-casadi_results = np.array(casadi_sequential_evaluation(q_vals[:50]))[:,:,0]
-jax_results = np.array(jax_fn_vectorized(jax_q_vals[:50]))[0,:,:,0]
-print("First 50 results match:", np.allclose(casadi_results, jax_results, atol=1e-6))
+casadi_results = np.array(casadi_sequential_evaluation(q_vals[:100]))[:,:,0]
+jax_results = np.array(jax_fn_vectorized(jax_q_vals[:100]))[0,:,:,0]
+print("First 100 results match:", np.allclose(casadi_results, jax_results, atol=1e-6))

@@ -126,8 +126,8 @@ print(f"MJX vs Generated JAX: {jax_time / mjx_time:.2f}x")
 
 # Verify results
 print("\nVerifying performance test results:")
-casadi_results = np.array(casadi_sequential_evaluation(q_vals[:10]))[:,:,0]
-jax_results = np.array(jax_fn_vectorized(jax_q_vals[:10]))[0,:,:,0]
-mjx_results = np.array(mjx_fn_vectorized(mjx_q_vals[:10]))
-print("First 10 JAX and Casadi results match:", np.allclose(casadi_results, jax_results, atol=1e-6))
-print("First 10 MJX and Casadi results match:", np.allclose(casadi_results, mjx_results, atol=1e-6))
+casadi_results = np.array(casadi_sequential_evaluation(q_vals[:100]))[:,:,0]
+jax_results = np.array(jax_fn_vectorized(jax_q_vals[:100]))[0,:,:,0]
+mjx_results = np.array(mjx_fn_vectorized(mjx_q_vals[:100]))
+print("First 100 JAX and Casadi results match:", np.allclose(casadi_results, jax_results, atol=1e-6))
+print("First 100 MJX and Casadi results match:", np.allclose(casadi_results, mjx_results, atol=1e-6))
