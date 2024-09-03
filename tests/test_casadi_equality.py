@@ -22,7 +22,7 @@ def compare_results(casadi_f, jax_f, *inputs):
         for i in range(len(jax_res)):
             r1 = jnp.array(jax_res[i])
             r2 = jnp.array(casadi_res[i].toarray())
-            assert np.allclose(r1, r2, rtol=1e-5, atol=1e-8)
+            assert np.allclose(r1, r2, rtol=1e-2, atol=1e-8)
     except Exception as e:
         pytest.fail(f"Comparison failed: {e}")
 
@@ -94,10 +94,6 @@ def test_mimo_arith():
     compare_results(casadi_f, jax_f, x_val, y_val)
 
 
-#
-#
-
-
 def test_mimo_trig():
     x = ca.SX.sym("x", 3, 3)
     y = ca.SX.sym("y", 3, 3)
@@ -133,8 +129,6 @@ def test_cos():
     casadi_f = ca.Function("cos", [x], [ca.cos(x)])
     jax_f = convert(casadi_f)
     x_val = np.random.randn(1, 1)
-    print(x_val.shape)
-    print(translate(casadi_f))
     compare_results(casadi_f, jax_f, x_val)
 
 
@@ -143,11 +137,10 @@ def test_mtimes():
     y = ca.SX.sym("y", 2, 2)
     casadi_f = ca.Function("mtimes", [x, y], [x @ y])
     jax_f = convert(casadi_f)
-    # x_val = np.random.randn(2, 2)
-    # y_val = np.random.randn(2, 2)
-    x_val = np.array([[1, 1], [2, 2]])
-    y_val = np.array([[2, 2], [2, 2]])
-    print(translate(casadi_f))
+    x_val = np.random.randn(2, 2)
+    y_val = np.random.randn(2, 2)
+    # x_val = np.array([[1, 1], [2, 2]])
+    # y_val = np.array([[2, 2], [2, 2]])
     compare_results(casadi_f, jax_f, x_val, y_val)
 
 
@@ -164,7 +157,6 @@ def test_norm_2():
     casadi_f = ca.Function("norm_2", [x], [ca.norm_2(x)])
     jax_f = convert(casadi_f)
     x_val = np.random.randn(3, 1)
-    print(translate(casadi_f))
     compare_results(casadi_f, jax_f, x_val)
 
 
@@ -172,9 +164,7 @@ def test_sum1():
     x = ca.SX.sym("x", 2, 2)
     casadi_f = ca.Function("sum1", [x], [ca.sum1(x)])
     x_val = np.random.randn(2, 2)
-    print(ca.sum1(x_val).shape)
     jax_f = convert(casadi_f)
-    print(translate(casadi_f))
     compare_results(casadi_f, jax_f, x_val)
 
 

@@ -14,4 +14,4 @@ print(casadi_fn)
 jax_fn = declare(translate(casadi_fn))
 
 print("Lowered JAX function:")
-print(lower(jax_fn, casadi_fn))
+print(lower(jax_fn, casadi_fn).as_text())
