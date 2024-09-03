@@ -3,15 +3,17 @@ from casadi import OP_CONST, OP_INPUT, OP_OUTPUT, OP_SQ, Function
 from ._ops import OP_JAX_DICT
 
 
-def translate(func: Function, add_jit=False, add_import=False) -> list[str]:
+def translate(func: Function, add_jit=False, add_import=False) -> str:
     # Get information about Casadi function
     n_instr = func.n_instructions()
     n_out = func.n_out()  # number of outputs in the function
+    n_in = func.n_in()  # number of outputs in the function
 
-    # get the shapes of input and output
+    # Get the shapes of input and output
     out_shapes = [func.size_out(i) for i in range(n_out)]
+    in_shapes = [func.size_in(i) for i in range(n_in)]
 
-    # number of work variables
+    # Number of work variables
     n_w = func.sz_w()
 
     input_idx = [func.instruction_input(i) for i in range(n_instr)]
@@ -19,15 +21,16 @@ def translate(func: Function, add_jit=False, add_import=False) -> list[str]:
     operations = [func.instruction_id(i) for i in range(n_instr)]
     const_instr = [func.instruction_constant(i) for i in range(n_instr)]
 
-    # generate string with complete code
+    # Generate string with complete code
     codegen = ""
     if add_import:
         codegen += "import jax\nimport jax.numpy as jnp\n\n"
     codegen += "@jax.jit\n" if add_jit else ""
     codegen += f"def evaluate_{func.name()}(*args):\n"
-    codegen += "    inputs = args\n"  # combine all inputs into a single list
-    codegen += f"    outputs = [jnp.zeros(out) for out in {out_shapes}]\n"  # output variables
-    codegen += f"    work = jnp.zeros(({n_w}, 1))\n"  # work variables
+    codegen += "    inputs = args\n"  # Combine all inputs into a single list
+    # Output variables
+    codegen += f"    outputs = [jnp.zeros(out) for out in {out_shapes}]\n"
+    codegen += f"    work = jnp.zeros(({n_w}, 1))\n"  # Work variables
 
     for k in range(n_instr):
         op = operations[k]
@@ -36,9 +39,18 @@ def translate(func: Function, add_jit=False, add_import=False) -> list[str]:
         if op == OP_CONST:
             codegen += OP_JAX_DICT[op].format(o_idx[0], const_instr[k])
         elif op == OP_INPUT:
-            codegen += OP_JAX_DICT[op].format(o_idx[0], i_idx[0], i_idx[1])
+            this_shape = in_shapes[i_idx[0]]
+            rows, cols = this_shape  # Get the shape of the output
+            row_number = i_idx[1] % rows  # Compute row index for JAX
+            column_number = i_idx[1] // rows  # Compute column index for JAX
+            codegen += OP_JAX_DICT[op].format(o_idx[0], i_idx[0], row_number, column_number)
         elif op == OP_OUTPUT:
-            codegen += OP_JAX_DICT[op].format(o_idx[0], o_idx[1], i_idx[0])
+            # Fix for OP_OUTPUT
+            rows, cols = out_shapes[o_idx[0]]  # Get the shape of the output matrix
+            # Adjust the calculation to switch from CasADi's column-major to JAX's row-major
+            row_number = o_idx[1] % rows  # Compute row index for JAX
+            column_number = o_idx[1] // rows  # Compute column index for JAX
+            codegen += OP_JAX_DICT[op].format(o_idx[0], row_number, column_number, i_idx[0])
         elif op == OP_SQ:
             codegen += OP_JAX_DICT[op].format(o_idx[0], i_idx[0], i_idx[0])
         elif OP_JAX_DICT[op].count("{") == 3:
@@ -48,7 +60,7 @@ def translate(func: Function, add_jit=False, add_import=False) -> list[str]:
         else:
             raise Exception("Unknown CasADi operation: " + str(op))
 
-    # footer
+    # Footer
     codegen += "\n    return outputs\n"
 
     return codegen

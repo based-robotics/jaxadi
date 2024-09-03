@@ -94,6 +94,6 @@ OP_JAX_DICT = {
     OP_ATANH: "\n    work = work.at[{0}].set(jnp.arctanh(work[{1}]))",
     OP_ATAN2: "\n    work = work.at[{0}].set(jnp.arctan2(work[{1}], work[{2}]))",
     OP_CONST: "\n    work = work.at[{0}].set({1:.16f})",
-    OP_INPUT: "\n    work = work.at[{0}].set(inputs[{1}][{2}])",
-    OP_OUTPUT: "\n    outputs[{0}] = outputs[{0}].at[{1}].set(work[{2}])",
+    OP_INPUT: "\n    work = work.at[{0}].set(inputs[{1}][{2}, {3}])",
+    OP_OUTPUT: "\n    outputs[{0}] = outputs[{0}].at[{1}, {2}].set(work[{3}][0])",
 }
