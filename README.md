@@ -6,6 +6,8 @@
 
 ```bash
 pip3 install -e .
+
+mamba env create -f environment.yml
 ```
 
 ## Usage
