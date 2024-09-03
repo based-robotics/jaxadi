@@ -1,13 +1,12 @@
+from collections.abc import Callable
+from typing import Any
+
+import casadi
 import jax
 import jax.numpy as jnp
-import casadi
-from typing import Callable, Any
 
 
-def lower(
-        f: Callable[..., Any],
-        cf: casadi.Function
-) -> jax._src.stages.Lowered:
+def lower(f: Callable[..., Any], cf: casadi.Function) -> jax._src.stages.Lowered:
     """
     Lower the given casadi function
 
@@ -22,15 +21,11 @@ def lower(
         shape = sparsity.shape
 
         if jax.config.jax_enable_x64:
-            dtype = jnp.dtype('float64')
+            dtype = jnp.dtype("float64")
         else:
-            dtype = jnp.dtype('float32')
+            dtype = jnp.dtype("float32")
 
-        if shape == (1, 1):
-            # Scalar argument
-            jax_input_structs.append(jax.ShapeDtypeStruct((), dtype))
-        else:
-            jax_input_structs.append(jax.ShapeDtypeStruct(shape, dtype))
+        jax_input_structs.append(jax.ShapeDtypeStruct(shape, dtype))
 
     # Pre-compile the JAX function
     jax_func = jax.jit(f)
