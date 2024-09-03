@@ -1,11 +1,9 @@
-import textwrap
-
 from casadi import OP_CONST, OP_INPUT, OP_OUTPUT, OP_SQ, Function
 
 from ._ops import OP_JAX_DICT
 
 
-def translate(func: Function) -> list[str]:
+def translate(func: Function, add_jit=False, add_import=False) -> list[str]:
     # Get information about Casadi function
     n_instr = func.n_instructions()
     n_out = func.n_out()  # number of outputs in the function
@@ -23,7 +21,9 @@ def translate(func: Function) -> list[str]:
 
     # generate string with complete code
     codegen = ""
-    # codegen += "@jax.jit\n"
+    if add_import:
+        codegen += "import jax\nimport jax.numpy as jnp\n\n"
+    codegen += "@jax.jit\n" if add_jit else ""
     codegen += f"def evaluate_{func.name()}(*args):\n"
     codegen += "    inputs = args\n"  # combine all inputs into a single list
     codegen += f"    outputs = [jnp.zeros(out) for out in {out_shapes}]\n"  # output variables

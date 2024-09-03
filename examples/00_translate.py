@@ -19,5 +19,5 @@ print("Signature of the CasADi function:")
 print(casadi_function)
 
 print("Translated JAX function:")
-for cg_str in translate(casadi_function):
-    print(cg_str)
+# secure add_import and add_jit to True to get the complete code
+print(translate(casadi_function, add_import=True, add_jit=True))
