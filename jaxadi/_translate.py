@@ -22,15 +22,8 @@ def translate(func: Function) -> list[str]:
     const_instr = [func.instruction_constant(i) for i in range(n_instr)]
 
     # generate string with complete code
-    codegen = textwrap.dedent(
-        """
-    import jax
-    import jax.numpy as jnp
-
-
-    """
-    )
-    codegen += "@jax.jit\n"
+    codegen = ""
+    # codegen += "@jax.jit\n"
     codegen += f"def evaluate_{func.name()}(*args):\n"
     codegen += "    inputs = args\n"  # combine all inputs into a single list
     codegen += f"    outputs = [jnp.zeros(out) for out in {out_shapes}]\n"  # output variables
@@ -58,4 +51,4 @@ def translate(func: Function) -> list[str]:
     # footer
     codegen += "\n    return outputs\n"
 
-    return codegen.split("\n")
+    return codegen
