@@ -47,13 +47,12 @@ N_test = 1000  # Small number for initial test
 q_vals_test = generate_random_inputs(N_test)
 jax_q_vals_test = jnp.array(q_vals_test).reshape(N_test, model.nq, 1)  # Create a batch of 1000
 
-print("Casadi evaluation (batch of 1000):")
+print(f"Casadi sequential evaluation ({N_test} times):")
 casadi_results_test = np.array(casadi_sequential_evaluation(q_vals_test))[:,:,0]
 print(f"First result: {casadi_results_test[0]}")
 print(f"Last result: {casadi_results_test[-1]}")
 print(f"Shape: {casadi_results_test.shape}")
-
-print("\nJAX evaluation (batch of 1000):")
+print(f"\nJAX vectorized evaluation ({N_test} times):")
 jax_results_test = np.array(jax_fn_vectorized(jax_q_vals_test))[0,:,:,0]
 print(f"First result: {jax_results_test[0]}")
 print(f"Last result: {jax_results_test[-1]}")
@@ -69,7 +68,12 @@ print("Warm-up call completed.")
 
 # Performance comparison
 print("\nPerformance comparison:")
-N = int(1e6)  # Number of evaluations for performance test
+N = int(1e5)  # Number of evaluations for performance test
+
+# call with same dimensions as target input to avoid re-compiling
+q_vals = generate_random_inputs(N)
+jax_q_vals = jnp.array(q_vals).reshape(N, model.nq, 1)
+np.array(jax_fn_vectorized(jax_q_vals))[0,:,:,0]
 
 # Generate new random inputs for performance comparison
 q_vals = generate_random_inputs(N)

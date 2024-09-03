@@ -92,12 +92,20 @@ print("MJX and Casadi results match:", np.allclose(casadi_results_test, mjx_resu
 
 # Performance comparison
 print("\nPerformance comparison:")
-N = int(1e7)  # Number of evaluations for performance test
+N = int(1e5)  # Number of evaluations for performance test
+
+# call with same dimensions as target input to avoid re-compiling
+q_vals = generate_random_inputs(N)
+jax_q_vals = jnp.array(q_vals).reshape(N, model.nq, 1)
+mjx_q_vals = jnp.array(q_vals)
+np.array(jax_fn_vectorized(jax_q_vals))
+np.array(mjx_fn_vectorized(mjx_q_vals))
 
 # Generate new random inputs for performance comparison
 q_vals = generate_random_inputs(N)
 jax_q_vals = jnp.array(q_vals).reshape(N, model.nq, 1)
 mjx_q_vals = jnp.array(q_vals)
+
 
 print(f"Casadi sequential evaluation ({N} times):")
 casadi_time = timeit.timeit(lambda: np.array(casadi_sequential_evaluation(q_vals))[:,:,0], number=1)
