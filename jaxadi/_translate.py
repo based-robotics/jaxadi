@@ -17,9 +17,9 @@ class Stage:
         values = "["
         outputs = "jnp.array(["
         for op in self.ops:
-            if values[-1] != '[':
+            if values[-1] != "[":
                 values += ", "
-            if outputs[-1] != '[':
+            if outputs[-1] != "[":
                 outputs += ", "
             values += f"{op.value}"
             outputs += str(op.output_idx)
@@ -41,7 +41,6 @@ class Operation:
 
 
 class OutputOperation(Operation):
-
     def __init__(self):
         self.exact_idx1: Any = None
         self.exact_idx2: Any = None
@@ -76,8 +75,7 @@ def stage_generator(func: Function) -> str:
         operation.op = op
         if op == OP_CONST:
             operation.output_idx = o_idx[0]
-            operation.value = "jnp.array([" + \
-                OP_JAX_VALUE_DICT[op].format(const_instr[k]) + "])"
+            operation.value = "jnp.array([" + OP_JAX_VALUE_DICT[op].format(const_instr[k]) + "])"
             # codegen += OP_JAX_DICT[op].format(o_idx[0], const_instr[k])
         elif op == OP_INPUT:
             this_shape = in_shapes[i_idx[0]]
@@ -85,8 +83,7 @@ def stage_generator(func: Function) -> str:
             row_number = i_idx[1] % rows  # Compute row index for JAX
             column_number = i_idx[1] // rows  # Compute column index for JAX
             operation.output_idx = o_idx[0]
-            operation.value = OP_JAX_VALUE_DICT[op].format(
-                i_idx[0], row_number, column_number)
+            operation.value = OP_JAX_VALUE_DICT[op].format(i_idx[0], row_number, column_number)
         elif op == OP_OUTPUT:
             operation = OutputOperation()
             operation.op = op
