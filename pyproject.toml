@@ -1,6 +1,6 @@
 [project]
 name = "jaxadi"
-description = "asdf"
+description = "**JaxADi** is a powerful Python library designed to bridge the gap between `casadi.Function` and JAX-compatible functions."
 version = "0.1.0"
 authors = [
     { name = "Lev Kozlov", email = "l.kozlov@kaist.ac.kr" },
