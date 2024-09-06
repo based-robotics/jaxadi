@@ -22,7 +22,7 @@ You can install JAXADI using pip:
 <!-- Change once it will be realeased -->
 
 ```bash
-pip install -e .
+pip install jaxadi
 ```
 
 For a complete environment setup, we recommend using Conda/Mamba:
@@ -82,9 +82,9 @@ JAXADI comes with several examples to help you get started:
 
 (Consider adding a section about performance comparisons between CasADi and JAXADI-translated functions)
 
-## Contributing
+<!-- ## Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for more details.
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for more details. -->
 
 ## Acknowledgements
 
