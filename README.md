@@ -3,8 +3,9 @@
 
 <p align="center">
   <!-- Placeholder for a cool logo -->
-  <img src="_assets/_logo.png" alt="JAXADI Logo" width="400"/>
+  <img src="https://github.com/based-robotics/jaxadi/blob/master/_assets/_logo.png?raw=true" alt="JAXADI Logo" width="400"/>
 </p>
+
 
 **JaxADi** is a powerful Python library designed to bridge the gap between `casadi.Function` and JAX-compatible functions. By leveraging the strengths of both CasADi and JAX, JAXADI opens up exciting opportunities for building highly efficient, batchable code that can be executed seamlessly across CPUs, GPUs, and TPUs.
 
