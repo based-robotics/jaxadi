@@ -17,7 +17,7 @@ import numpy as np
 import pinocchio as pin
 import pinocchio.casadi as cpin
 from robot_descriptions.iiwa14_mj_description import MJCF_PATH
-from jaxadi import convert, translate
+from jaxadi import convert
 import mujoco
 import mujoco.mjx as mjx
 
@@ -137,7 +137,7 @@ print(f"Time: {mjx_time:.4f} seconds")
 print(f"\nSpeedup factors:")
 print(f"Generated JAX vs Casadi: {casadi_time / jax_time:.2f}x")
 print(f"MJX vs Casadi: {casadi_time / mjx_time:.2f}x")
-print(f"MJX vs Generated JAX: {jax_time / mjx_time:.2f}x")
+print(f"Generated JAX vs MJX: {mjx_time / jax_time:.2f}x")
 
 # Verify results
 print("\nVerifying performance test results:")

@@ -187,12 +187,12 @@ def test_transpose():
 
 
 def test_add():
-    x = ca.SX.sym("x", 3, 3)
-    y = ca.SX.sym("y", 3, 3)
+    x = ca.SX.sym("x", 5, 5)
+    y = ca.SX.sym("y", 5, 5)
     casadi_f = ca.Function("add", [x, y], [x + y])
     jax_f = convert(casadi_f)
-    x_val = np.random.randn(3, 3)
-    y_val = np.random.randn(3, 3)
+    x_val = np.random.randn(5, 5)
+    y_val = np.random.randn(5, 5)
     compare_results(casadi_f, jax_f, x_val, y_val)
 
 

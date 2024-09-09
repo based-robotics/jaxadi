@@ -1,6 +1,7 @@
-from typing import List, Any
-from ._ops import OP_JAX_DICT, OP_JAX_VALUE_DICT
+from typing import List, Any, Dict
+from ._ops import OP_JAX_VALUE_DICT
 from casadi import OP_CONST, OP_INPUT, OP_OUTPUT, OP_SQ, Function
+import re
 
 
 class Stage:
@@ -98,11 +99,11 @@ def stage_generator(func: Function) -> str:
             operation.output_idx = o_idx[0]
             operation.work_idx.append(i_idx[0])
             operation.value = OP_JAX_VALUE_DICT[op].format(i_idx[0])
-        elif OP_JAX_DICT[op].count("}") == 3:
+        elif OP_JAX_VALUE_DICT[op].count("}") == 2:
             operation.output_idx = o_idx[0]
             operation.work_idx.extend([i_idx[0], i_idx[1]])
             operation.value = OP_JAX_VALUE_DICT[op].format(i_idx[0], i_idx[1])
-        elif OP_JAX_DICT[op].count("}") == 2:
+        elif OP_JAX_VALUE_DICT[op].count("}") == 1:
             operation.output_idx = o_idx[0]
             operation.work_idx.append(i_idx[0])
             operation.value = OP_JAX_VALUE_DICT[op].format(i_idx[0])
@@ -118,51 +119,77 @@ def stage_generator(func: Function) -> str:
     return stages
 
 
-def update_stage(stage: Stage):
-    stage.output_idx = []
-    stage.work_idx = []
+def combine_outputs(stages: List[Stage]) -> str:
+    output_groups: Dict[int, List[Operation]] = {}
 
-    for op in stage.ops:
-        stage.output_idx.append(op.output_idx)
-        stage.work_idx.extend(op.work_idx)
-
-
-def squeze_stages(stages: List[Stage]) -> List[Stage]:
-    for i, stage in enumerate(stages):
-        stage_ops = []
-        for j, op in enumerate(stage.ops):
-            current_stage = stage
-            for k, new_stage in enumerate(reversed(stages[0:i])):
-                if op.op == OP_OUTPUT:
-                    break
-                if len(new_stage.ops) == 0:
-                    continue
-                if new_stage.ops[0].op == OP_OUTPUT:
-                    if op.output_idx in new_stage.output_idx:
-                        break
-                    elif op.output_idx in new_stage.work_idx:
-                        break
-                    else:
-                        continue
-                if op.output_idx in new_stage.output_idx:
-                    break
-                if set(op.work_idx).intersection(set(new_stage.output_idx)):
-                    break
-                if op.output_idx in new_stage.work_idx:
-                    current_stage = new_stage
-                    break
-                current_stage = new_stage
-            if current_stage == stage:
-                stage_ops.append(op)
-            else:
-                current_stage.ops.append(op)
-
-            update_stage(current_stage)
-        stage.ops = stage_ops
-        update_stage(stage)
-
-    new_stages = []
+    # Collect all OP_OUTPUT operations and group them by output_idx
     for stage in stages:
-        if len(stage.ops) != 0:
-            new_stages.append(stage)
-    return new_stages
+        for op in stage.ops:
+            if op.op == OP_OUTPUT:
+                if op.output_idx not in output_groups:
+                    output_groups[op.output_idx] = []
+                output_groups[op.output_idx].append(op)
+
+    # Create combined JAX-style commands for each output_idx
+    commands = []
+    for output_idx, ops in output_groups.items():
+        # Prepare the list of index pairs and respective values
+        row_indices = []
+        column_indices = []
+        values = []
+        for op in ops:
+            row_indices.append(f"{op.exact_idx1}")
+            column_indices.append(f"{op.exact_idx2}")
+            values.append(op.value)
+
+        # Combine the pairs and values into the final command for each output_idx
+        rows = "[" + ", ".join(row_indices) + "]"
+        columns = "[" + ", ".join(column_indices) + "]"
+        values_str = ", ".join(values)
+        command = f"    outputs[{output_idx}] = outputs[{output_idx}].at[({rows}, {columns})].set([{values_str}])"
+        commands.append(command)
+
+    # Combine all the commands into a single string
+    combined_command = "\n".join(commands)
+
+    return combined_command
+
+
+def recursive_subs(stages: List[Stage], idx: int) -> str:
+    # Get the current stage's value
+    current_value = stages[idx].ops[0].value
+    work_pattern = r"work\[(\d+)\]"
+
+    # Find all occurrences of work[<number>]
+    matches = re.findall(work_pattern, current_value)
+
+    # If there are no work mentions, return the value as is, wrapped in parentheses
+    if not matches:
+        return f"({current_value})"
+
+    # For each match, find and replace all work mentions
+    result = current_value
+    # Use set to avoid multiple replacements of the same work[number]
+    for match in set(matches):
+        number = int(match)
+
+        # Find the stage that has output_idx equal to the number
+        for i in range(idx - 1, -1, -1):
+            if stages[i].ops[0].output_idx == number and stages[i].ops[0].op != OP_OUTPUT:
+                # Recursively replace the found work[<number>] with expanded value
+                expanded_value = recursive_subs(stages, i)
+                result = result.replace(f"work[{number}]", expanded_value)
+                break
+
+    return f"({result})"
+
+
+def squeeze(stages: List[Stage]) -> List[Stage]:
+    new_stages = []
+    for i in range(len(stages)):
+        if len(stages[i].ops) != 0 and stages[i].ops[0].op == OP_OUTPUT:
+            stages[i].ops[0].value = recursive_subs(stages, i)
+            new_stages.append(stages[i])
+
+    cmd = combine_outputs(new_stages)
+    return cmd
