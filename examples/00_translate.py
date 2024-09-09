@@ -8,7 +8,7 @@ capabilities for the same function.
 
 import casadi as cs
 
-from jaxadi import translate
+from jaxadi import translate, legacy_translate, translate_one_line
 
 # define input variables for the function
 x = cs.SX.sym("x", 3)
@@ -20,4 +20,4 @@ print(casadi_function)
 
 print("Translated JAX function:")
 # secure add_import and add_jit to True to get the complete code
-print(translate(casadi_function, add_import=True, add_jit=True))
+print(translate_one_line(casadi_function, add_import=True, add_jit=True))
