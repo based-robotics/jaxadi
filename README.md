@@ -73,15 +73,18 @@ JAXADI comes with several examples to help you get started:
 
 3. [Function Conversion](examples/02_convert.py): See how to fully convert CasADi functions to JAX. 
 
-4. [Pinocchio Integration](examples/03_pinocchio.py): Explore how to convert Pinocchio-based CasADi functions to JAX. 
+4. [Pendulum Rollout](examples/03_pendulum_rollout.py): Batched rollout of the nonlinear passive nonlinear pendulum 
+
+5. [Pinocchio Integration](examples/04_pinocchio.py): Explore how to convert Pinocchio-based CasADi functions to JAX. 
+
+6. [MJX Comparison](examples/05_mjx.py): Compare the transformed Pinnocchio forward kinematics with one provided by Mujoco MJX
+
+> **Note**: To run the Pinocchio and MJX examples, ensure you have them properly installed in your environment.
 
 
-> **Note**: To run the Pinocchio example, ensure you have Pinocchio properly installed in your environment.
+<!-- ## Performance Benchmarks
 
-
-## Performance Benchmarks
-
-(Consider adding a section about performance comparisons between CasADi and JAXADI-translated functions)
+(Consider adding a section about performance comparisons between CasADi and JAXADI-translated functions) -->
 
 <!-- ## Contributing
 
