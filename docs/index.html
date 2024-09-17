@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Jax codegeneration of casadi functions.">
+  <meta name="keywords" content="jax, casadi, codegen, jit">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JAXADI</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.png">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+  <style>
+        .note-box {
+            background-color: #f8f9fa;
+            border-left: 5px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .note-box a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .note-box a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-body">
+<div class="logo-container" style="width: 100%; display: flex; justify-content: center; align-items: center;">
+  <img src="./static/images/logo.png" alt="Project Logo" style="max-width: 100%; height: auto; max-height: 300px;">
+    </div>
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">JAXADI</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://me.m8pie.xyz">Igor Alentev</a><sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://github.com/lvjonok">Lev Kozlov</a><sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://simeon-ned.com/">Simeon Nedelchev</a><sup>2</sup>,
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>KAIST,</span>
+            <span class="author-block"><sup>2</sup>Innopolis University</span>
+          </div>
+
+          <div class="is-size-7 contribution-authors">
+              <span class="contribution-level"><sup>*</sup>All authors contributed equally to this work.</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <span class="link-block">
+                <a href="https://github.com/based-robotics/jaxadi"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+          While many tools use symbolical representation provided by CasADi, most of them are difficult to parallelize and compute efficiently.
+          In the recent years high-preformance numerical computing is becoming more popular thanks to frameworks like JAX, CUDA and others.
+          </p>
+          <p>
+          With introduction of CasADi support in the tools we use and love, we felt rising importance of proper parallelizing of those tools.
+          This way we developed and made publically available translation utility, which allows to convert user defined CasADi functions to
+          JIT compilable JAX functions with ability to export them or declare immidiately. 
+          <p>
+          </p>
+          This framework allows us to achieve result comparable with CUDA native compilations, while delegating environment and hardware
+          support from the user to the library, which is JAX in our case. JAX JIT compilation allows to run the code on various accelerator
+          devices without the need of user intervention.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Capabilities</h2>
+        <p>
+          <ol>
+            <li>
+                Translation of the CasADi function for further text export.
+            </li>
+            <li>Lowering the function for StableHLO export.</li>
+            <li>Direct conversion and anonymous declaration of the function.</li>
+          </ol>
+          <div class="note-box">
+            <p><strong>Note:</strong> For now translation does not support functions with very
+            large number of operations, due to the translation implementation. Secret component of 
+            translation is work-tree expansion, which might lead to large overhead in number of 
+            symbols. We are working on finding the compromise in both speed and extensive
+            functions support.
+            </br></br>
+            Our initial goal was combining this approach with <a href="https://github.com/stack-of-tasks/pinocchio">pinocchio</a> 
+            and CasADi in robotics applications
+            and there was no need for functions with large dimensions. However, some work on this issue is planned.
+          </div>
+        </p>
+        </br>
+      </div>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Benchmarks</h2>
+            <section class="hero is-light is-small">
+              <div class="hero-body">
+                <div class="container">
+                  <div id="results-carousel" class="carousel results-carousel">
+                    <div class="item item-steve">
+                        <img src="./static/images/speedup_ratio.png"/>
+                    </div>
+                    <div class="item item-chair-tp">
+                        <img src="./static/images/compare_1e1_bar.png"/>
+                    </div>
+                    <div class="item item-chair-tp">
+                        <img src="./static/images/compare_1e2_bar.png"/>
+                    </div>
+                    <div class="item item-steve">
+                        <img src="./static/images/speedup_ratio.png"/>
+                    </div>
+                    <div class="item item-chair-tp">
+                        <img src="./static/images/compare_1e1_bar.png"/>
+                    </div>
+                    <div class="item item-chair-tp">
+                        <img src="./static/images/compare_1e2_bar.png"/>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+        </br>
+      </div>
+    </div>
+
+    <!-- Concurrent Work. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Related Links</h2>
+
+        <div class="content has-text-justified">
+          <p>
+            The work is heavilly inspired by the similar project, which revolves around CUDA compilation - <a href="https://github.com/se-hwan/cusadi">CusADi</a>.
+          </p>
+          <p>
+            Also it would not be possible without underlying projects like <a href="https://github.com/google/jax">JAX</a> and <a href="https://github.com/casadi/casadi">CasADi</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Concurrent Work. -->
+
+  </div>
+</section>
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@misc{jaxadi2024,
+  title = {JaxADi: Bridging CasADi and JAX for Efficient Numerical Computing},
+  author = {Alentev, Igor and Kozlov, Lev and Nedelchev, Simeon},
+  year = {2024},
+  url = {https://github.com/based-robotics/jaxadi},
+  note = {Accessed: [Insert Access Date]}
+}
+</code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+          This website uses the template provided by <a href="https://github.com/nerfies/nerfies.github.io">Nerfies</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
