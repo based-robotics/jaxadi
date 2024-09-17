@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Jax codegeneration of casadi functions.">
+  <meta name="keywords" content="jax, casadi, codegen, jit">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JAXADI</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/logo.png">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+  <style>
+        .note-box {
+            background-color: #f8f9fa;
+            border-left: 5px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .note-box a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .note-box a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<!-- <nav class="navbar" role="navigation" aria-label="main navigation"> -->
+<!--   <div class="navbar-brand"> -->
+<!--     <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false"> -->
+<!--       <span aria-hidden="true"></span> -->
+<!--       <span aria-hidden="true"></span> -->
+<!--       <span aria-hidden="true"></span> -->
+<!--     </a> -->
+<!--   </div> -->
+<!--   <div class="navbar-menu"> -->
+<!--     <div class="navbar-start" style="flex-grow: 1; justify-content: center;"> -->
+<!--       <a class="navbar-item" href="https://keunhong.com"> -->
+<!--       <span class="icon"> -->
+<!--           <i class="fas fa-home"></i> -->
+<!--       </span> -->
+<!--       </a> -->
+<!---->
+<!--       <div class="navbar-item has-dropdown is-hoverable"> -->
+<!--         <a class="navbar-link"> -->
+<!--           More Research -->
+<!--         </a> -->
+<!--         <div class="navbar-dropdown"> -->
+<!--           <a class="navbar-item" href="https://hypernerf.github.io"> -->
+<!--             HyperNeRF -->
+<!--           </a> -->
+<!--           <a class="navbar-item" href="https://nerfies.github.io"> -->
+<!--             Nerfies -->
+<!--           </a> -->
+<!--           <a class="navbar-item" href="https://latentfusion.github.io"> -->
+<!--             LatentFusion -->
+<!--           </a> -->
+<!--           <a class="navbar-item" href="https://photoshape.github.io"> -->
+<!--             PhotoShape -->
+<!--           </a> -->
+<!--         </div> -->
+<!--       </div> -->
+<!--     </div> -->
+<!---->
+<!--   </div> -->
+<!-- </nav> -->
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="logo-container" style="width: 100%; overflow: hidden;">
+      <img src="./static/images/logo.png" alt="Project Logo">
+    </div>
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">JAXADI</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://github.com/lvjonok">Lev Kozlov</a><sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://me.m8pie.xyz">Igor Alentev</a><sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://simeon-ned.com/">Simeon Nedelchev</a><sup>2</sup>,
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>KAIST,</span>
+            <span class="author-block"><sup>2</sup>Innopolis University</span>
+          </div>
+
+          <div class="is-size-7 contribution-authors">
+              <span class="contribution-level"><sup>*</sup>All authors contributed equally to this work.</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <!-- <span class="link-block"> -->
+              <!--   <a href="https://arxiv.org/pdf/2011.12948" -->
+              <!--      class="external-link button is-normal is-rounded is-dark"> -->
+              <!--     <span class="icon"> -->
+              <!--         <i class="fas fa-file-pdf"></i> -->
+              <!--     </span> -->
+              <!--     <span>Paper</span> -->
+              <!--   </a> -->
+              <!-- </span> -->
+              <!-- <span class="link-block"> -->
+              <!--   <a href="https://arxiv.org/abs/2011.12948" -->
+              <!--      class="external-link button is-normal is-rounded is-dark"> -->
+              <!--     <span class="icon"> -->
+              <!--         <i class="ai ai-arxiv"></i> -->
+              <!--     </span> -->
+              <!--     <span>arXiv</span> -->
+              <!--   </a> -->
+              <!-- </span> -->
+              <!-- Video Link. -->
+              <!-- <span class="link-block"> -->
+              <!--   <a href="https://www.youtube.com/watch?v=MrKrnHhk8IA" -->
+              <!--      class="external-link button is-normal is-rounded is-dark"> -->
+              <!--     <span class="icon"> -->
+              <!--         <i class="fab fa-youtube"></i> -->
+              <!--     </span> -->
+              <!--     <span>Video</span> -->
+              <!--   </a> -->
+              <!-- </span> -->
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/based-robotics/jaxadi"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+              <!-- Dataset Link. -->
+              <!-- <span class="link-block"> -->
+              <!--   <a href="https://github.com/google/nerfies/releases/tag/0.1" -->
+              <!--      class="external-link button is-normal is-rounded is-dark"> -->
+              <!--     <span class="icon"> -->
+              <!--         <i class="far fa-images"></i> -->
+              <!--     </span> -->
+              <!--     <span>Data</span> -->
+              <!--     </a> -->
+              <!-- </span> -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- <section class="hero teaser"> -->
+<!--   <div class="container is-max-desktop"> -->
+<!--     <div class="hero-body"> -->
+<!--       <video id="teaser" autoplay muted loop playsinline height="100%"> -->
+<!--         <source src="./static/videos/teaser.mp4" -->
+<!--                 type="video/mp4"> -->
+<!--       </video> -->
+<!--       <h2 class="subtitle has-text-centered"> -->
+<!--         <span class="dnerf">Nerfies</span> turns selfie videos from your phone into -->
+<!--         free-viewpoint -->
+<!--         portraits. -->
+<!--       </h2> -->
+<!--     </div> -->
+<!--   </div> -->
+<!-- </section> -->
+
+
+<!-- <section class="hero is-light is-small"> -->
+<!--   <div class="hero-body"> -->
+<!--     <div class="container"> -->
+<!--       <div id="results-carousel" class="carousel results-carousel"> -->
+<!--         <div class="item item-steve"> -->
+<!--           <video poster="" id="steve" autoplay controls muted loop playsinline height="100%"> -->
+<!--             <source src="./static/videos/steve.mp4" -->
+<!--                     type="video/mp4"> -->
+<!--           </video> -->
+<!--         </div> -->
+<!--         <div class="item item-chair-tp"> -->
+<!--           <video poster="" id="chair-tp" autoplay controls muted loop playsinline height="100%"> -->
+<!--             <source src="./static/videos/chair-tp.mp4" -->
+<!--                     type="video/mp4"> -->
+<!--           </video> -->
+<!--         </div> -->
+<!--         <div class="item item-shiba"> -->
+<!--           <video poster="" id="shiba" autoplay controls muted loop playsinline height="100%"> -->
+<!--             <source src="./static/videos/shiba.mp4" -->
+<!--                     type="video/mp4"> -->
+<!--           </video> -->
+<!--         </div> -->
+<!--         <div class="item item-fullbody"> -->
+<!--           <video poster="" id="fullbody" autoplay controls muted loop playsinline height="100%"> -->
+<!--             <source src="./static/videos/fullbody.mp4" -->
+<!--                     type="video/mp4"> -->
+<!--           </video> -->
+<!--         </div> -->
+<!--         <div class="item item-blueshirt"> -->
+<!--           <video poster="" id="blueshirt" autoplay controls muted loop playsinline height="100%"> -->
+<!--             <source src="./static/videos/blueshirt.mp4" -->
+<!--                     type="video/mp4"> -->
+<!--           </video> -->
+<!--         </div> -->
+<!--         <div class="item item-mask"> -->
+<!--           <video poster="" id="mask" autoplay controls muted loop playsinline height="100%"> -->
+<!--             <source src="./static/videos/mask.mp4" -->
+<!--                     type="video/mp4"> -->
+<!--           </video> -->
+<!--         </div> -->
+<!--         <div class="item item-coffee"> -->
+<!--           <video poster="" id="coffee" autoplay controls muted loop playsinline height="100%"> -->
+<!--             <source src="./static/videos/coffee.mp4" -->
+<!--                     type="video/mp4"> -->
+<!--           </video> -->
+<!--         </div> -->
+<!--         <div class="item item-toby"> -->
+<!--           <video poster="" id="toby" autoplay controls muted loop playsinline height="100%"> -->
+<!--             <source src="./static/videos/toby2.mp4" -->
+<!--                     type="video/mp4"> -->
+<!--           </video> -->
+<!--         </div> -->
+<!--       </div> -->
+<!--     </div> -->
+<!--   </div> -->
+<!-- </section> -->
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+          While many tools use symbolical representation provided by CasADi, most of them are difficult to parallelize and compute efficiently.
+          In the recent years high-preformance numerical computing is becoming more popular thanks to frameworks like JAX, CUDA and others.
+          </p>
+          <p>
+          With introduction of CasADi support in the tools we use and love, we felt rising importance of proper parallelizing of those tools.
+          This way we developed and made publically available translation utility, which allows to convert user defined CasADi functions to
+          JIT compilable JAX functions with ability to export them or declare immidiately. 
+          <p>
+          </p>
+          This framework allows us to achieve result comparable with CUDA native compilations, while delegating environment and hardware
+          support from the user to the library, which is JAX in our case. JAX JIT compilation allows to run the code on various accelerator
+          devices without the need of user intervention.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Capabilities</h2>
+        <p>
+          <ol>
+            <li>
+                Translation of the CasADi function for further text export.
+            </li>
+            <li>Lowering the function for StableHLO export.</li>
+            <li>Direct conversion and anonymous declaration of the function.</li>
+          </ol>
+          <div class="note-box">
+            <p><strong>Note:</strong> Translation supports two modes. The first mode produces the code which is blazingly fast on evaluation,
+            but is very difficult to produce for large functions. The second translation produces much less efficient code, but is capable
+            to translate almost any function you might want.
+          </div>
+        </p>
+        </br>
+      </div>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Benchmarks</h2>
+        <p>Here will benchmarks go.</p>
+        </br>
+      </div>
+    </div>
+
+    <!-- Concurrent Work. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Related Links</h2>
+
+        <div class="content has-text-justified">
+          <p>
+            The work is heavilly inspired by the similar project, which revolves around CUDA compilation - <a href="https://github.com/se-hwan/cusadi">CusADi</a>.
+          </p>
+          <p>
+            Also it would not be possible without underlying projects like <a href="https://github.com/google/jax">JAX</a> and <a href="https://github.com/casadi/casadi">CasADi</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Concurrent Work. -->
+
+  </div>
+</section>
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code> @misc{jaxadi_2024,
+  author = {Kozlov, Lev and Alentev, Igor and Nedelchev, Simeon},
+  title = {jaxadi},
+  year = {2024},
+  howpublished = {\url{https://github.com/based-robotics/jaxadi}},
+}
+</code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+          This website uses the template provided by <a href="https://github.com/nerfies/nerfies.github.io">Nerfies</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
