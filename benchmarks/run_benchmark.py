@@ -108,8 +108,8 @@ def run_jaxadi_benchmarks():
         fn_name = fn.name()
 
         # apply jaxadi
-        jax_fn = convert(fn, compile=True)
-        vmapped_fn = jax.vmap(jax_fn)
+        jax_fn = convert(fn, compile=False)
+        vmapped_fn = jax.jit(jax.vmap(jax_fn))
 
         for i, n_envs in enumerate(N_ENVS_SWEEP):
             print(f"Running Jaxadi benchmark for {n_envs} environments with function {fn_name}...")
@@ -123,6 +123,9 @@ def run_jaxadi_benchmarks():
 
             # remove the compiled function from the memory and inputs
             del inputs
+
+        del jax_fn, vmapped_fn
+        gc.collect()
 
     return results
 
