@@ -198,7 +198,7 @@ def squeeze(stages: List[Stage], num_threads=1) -> List[Stage]:
     for i, stage in enumerate(stages):
         if len(stage.ops) != 0 and stage.ops[0].op == OP_OUTPUT:
             working_stages.append((i, stage))
-    for i in tqdm(range(len(working_stages))):
+    for i in range(len(working_stages)):
         i, stage = working_stages[i]
         stage.value = recursive_subs(stages, i)
         new_stages.append(stage)
