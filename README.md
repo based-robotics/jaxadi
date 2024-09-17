@@ -16,7 +16,6 @@ JAXADI can be particularly useful in scenarios involving:
 - Robotics simulations
 - Optimal control problems
 - Machine learning models with complex dynamics
-- Large-scale numerical optimizations
 
 ## Installation
 
@@ -65,6 +64,12 @@ output = jax_fn(input_x, input_y)
 
 ```
 
+<strong>Note:</strong> For now translation does not support functions with very
+large number of operations, due to the translation implementation. Secret component of
+translation is work-tree expansion, which might lead to large overhead in number of
+symbols. We are working on finding the compromise in both speed and extensive
+functions support.
+
 ## Examples
 
 JAXADI comes with several examples to help you get started:
@@ -85,11 +90,27 @@ JAXADI comes with several examples to help you get started:
 
 ## Performance Benchmarks
 
+![speedup](https://github.com/based-robotics/jaxadi/blob/master/docs/static/images/speedup_ratio.png?raw=true)
+
 The process of benchmarking and evaluating the performance of Jaxadi is described in the [benchmarks](benchmarks/README.md) directory.
 
-<!-- ## Contributing
+## Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for more details. -->
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for more details.
+
+## Citation
+
+If you use JaxADi in your research, please cite it as follows:
+
+```bibtex
+@misc{jaxadi2024,
+  title = {JaxADi: Bridging CasADi and JAX for Efficient Numerical Computing},
+  author = {Alentev, Igor and Kozlov, Lev and Nedelchev, Simeon},
+  year = {2024},
+  url = {https://github.com/based-robotics/jaxadi},
+  note = {Accessed: [Insert Access Date]}
+}
+```
 
 ## Acknowledgements
 
