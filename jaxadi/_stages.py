@@ -2,7 +2,6 @@ from typing import List, Any, Dict
 from ._ops import OP_JAX_VALUE_DICT
 from casadi import OP_CONST, OP_INPUT, OP_OUTPUT, OP_SQ, Function
 import re
-from tqdm import tqdm
 from multiprocessing import Pool, cpu_count
 
 
@@ -72,7 +71,7 @@ def stage_generator(func: Function) -> str:
     const_instr = [func.instruction_constant(i) for i in range(n_instr)]
 
     stages = []
-    for k in tqdm(range(n_instr)):
+    for k in range(n_instr):
         op = operations[k]
         o_idx = output_idx[k]
         i_idx = input_idx[k]
