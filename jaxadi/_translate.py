@@ -18,7 +18,7 @@ def translate(func: Function, add_jit=False, add_import=False) -> str:
     codegen += "@jax.jit\n" if add_jit else ""
     codegen += f"def evaluate_{func.name()}(*args):\n"
     # combine all inputs into a single list
-    codegen += "    inputs = jnp.expand_dims(jnp.array(args), axis=-1)\n"
+    codegen += "    inputs = [jnp.expand_dims(jnp.array(arg), axis=-1) for arg in args]\n"
     # output variables
     codegen += f"    outputs = [jnp.zeros(out) for out in {out_shapes}]\n"
 
