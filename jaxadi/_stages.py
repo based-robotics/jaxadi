@@ -2,6 +2,8 @@ from typing import List, Any, Dict
 from ._ops import OP_JAX_VALUE_DICT
 from casadi import OP_CONST, OP_INPUT, OP_OUTPUT, OP_SQ, Function
 import re
+from tqdm import tqdm
+from multiprocessing import Pool, cpu_count
 
 
 class Stage:
@@ -56,6 +58,9 @@ def stage_generator(func: Function) -> str:
     n_instr = func.n_instructions()
     n_out = func.n_out()  # number of outputs in the function
     n_in = func.n_in()  # number of outputs in the function
+    n_w = func.sz_w()
+
+    workers = [""] * n_w
 
     # Get the shapes of input and output
     out_shapes = [func.size_out(i) for i in range(n_out)]
@@ -67,23 +72,23 @@ def stage_generator(func: Function) -> str:
     const_instr = [func.instruction_constant(i) for i in range(n_instr)]
 
     stages = []
-    for k in range(n_instr):
+    for k in tqdm(range(n_instr)):
         op = operations[k]
         o_idx = output_idx[k]
         i_idx = input_idx[k]
         operation = Operation()
         operation.op = op
         if op == OP_CONST:
-            operation.output_idx = o_idx[0]
-            operation.value = "jnp.array([" + OP_JAX_VALUE_DICT[op].format(const_instr[k]) + "])"
-            # codegen += OP_JAX_DICT[op].format(o_idx[0], const_instr[k])
+            workers[o_idx[0]
+                    ] = "jnp.array([" + OP_JAX_VALUE_DICT[op].format(const_instr[k]) + "])"
+
         elif op == OP_INPUT:
             this_shape = in_shapes[i_idx[0]]
             rows, cols = this_shape  # Get the shape of the output
             row_number = i_idx[1] % rows  # Compute row index for JAX
             column_number = i_idx[1] // rows  # Compute column index for JAX
-            operation.output_idx = o_idx[0]
-            operation.value = OP_JAX_VALUE_DICT[op].format(i_idx[0], row_number, column_number)
+            workers[o_idx[0]] = OP_JAX_VALUE_DICT[op].format(
+                i_idx[0], row_number, column_number)
         elif op == OP_OUTPUT:
             operation = OutputOperation()
             operation.op = op
@@ -94,28 +99,25 @@ def stage_generator(func: Function) -> str:
             operation.exact_idx2 = column_number
             operation.output_idx = o_idx[0]
             operation.work_idx.append(i_idx[0])
-            operation.value = OP_JAX_VALUE_DICT[op].format(i_idx[0])
+            operation.value = OP_JAX_VALUE_DICT[op].format(workers[i_idx[0]])
+            stage = Stage()
+            stage.output_idx.append(operation.output_idx)
+            stage.work_idx.extend(operation.work_idx)
+            stage.ops.append(operation)
+            stages.append(stage)
         elif op == OP_SQ:
-            operation.output_idx = o_idx[0]
-            operation.work_idx.append(i_idx[0])
-            operation.value = OP_JAX_VALUE_DICT[op].format(i_idx[0])
+            workers[o_idx[0]] = "(" + \
+                OP_JAX_VALUE_DICT[op].format(workers[i_idx[0]]) + ")"
         elif OP_JAX_VALUE_DICT[op].count("}") == 2:
-            operation.output_idx = o_idx[0]
-            operation.work_idx.extend([i_idx[0], i_idx[1]])
-            operation.value = OP_JAX_VALUE_DICT[op].format(i_idx[0], i_idx[1])
+            workers[o_idx[0]] = "(" + OP_JAX_VALUE_DICT[op].format(
+                workers[i_idx[0]], workers[i_idx[1]]) + ")"
         elif OP_JAX_VALUE_DICT[op].count("}") == 1:
-            operation.output_idx = o_idx[0]
-            operation.work_idx.append(i_idx[0])
-            operation.value = OP_JAX_VALUE_DICT[op].format(i_idx[0])
+            workers[o_idx[0]] = OP_JAX_VALUE_DICT[op].format(workers[i_idx[0]])
         else:
             raise Exception("Unknown CasADi operation: " + str(op))
+        print(sum(len(s) for s in workers))
 
-        stage = Stage()
-        stage.output_idx.append(operation.output_idx)
-        stage.work_idx.extend(operation.work_idx)
-        stage.ops.append(operation)
-        stages.append(stage)
-
+    print("finished stages")
     return stages
 
 
@@ -146,7 +148,7 @@ def combine_outputs(stages: List[Stage]) -> str:
         rows = "[" + ", ".join(row_indices) + "]"
         columns = "[" + ", ".join(column_indices) + "]"
         values_str = ", ".join(values)
-        command = f"    outputs[{output_idx}] = outputs[{output_idx}].at[({rows}, {columns})].set([{values_str}])"
+        command = f"    o[{output_idx}] = o[{output_idx}].at[({rows}, {columns})].set([{values_str}])"
         commands.append(command)
 
     # Combine all the commands into a single string
@@ -177,19 +179,32 @@ def recursive_subs(stages: List[Stage], idx: int) -> str:
         for i in range(idx - 1, -1, -1):
             if stages[i].ops[0].output_idx == number and stages[i].ops[0].op != OP_OUTPUT:
                 # Recursively replace the found work[<number>] with expanded value
-                expanded_value = recursive_subs(stages, i)
-                result = result.replace(f"work[{number}]", expanded_value)
+                stages[i].ops[0].value = recursive_subs(stages, i)
+                result = result.replace(
+                    f"work[{number}]", stages[i].ops[0].value)
                 break
 
     return f"({result})"
 
 
-def squeeze(stages: List[Stage]) -> List[Stage]:
+def process_stage(args):
+    stages, i = args
+    if len(stages[i].ops) != 0:
+        stages[i].ops[0].value = recursive_subs(stages, i)
+        return stages[i]
+    return None
+
+
+def squeeze(stages: List[Stage], num_threads=1) -> List[Stage]:
     new_stages = []
-    for i in range(len(stages)):
-        if len(stages[i].ops) != 0 and stages[i].ops[0].op == OP_OUTPUT:
-            stages[i].ops[0].value = recursive_subs(stages, i)
-            new_stages.append(stages[i])
+    working_stages = []
+    for i, stage in enumerate(stages):
+        if len(stage.ops) != 0 and stage.ops[0].op == OP_OUTPUT:
+            working_stages.append((i, stage))
+    for i in tqdm(range(len(working_stages))):
+        i, stage = working_stages[i]
+        stage.value = recursive_subs(stages, i)
+        new_stages.append(stage)
 
     cmd = combine_outputs(new_stages)
     return cmd
