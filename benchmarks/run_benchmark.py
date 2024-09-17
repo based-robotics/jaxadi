@@ -42,7 +42,7 @@ if PathsProvider.RUN_CUSADI:
 
     torch.manual_seed(0)
 
-N_ENVS_SWEEP = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768]
+N_ENVS_SWEEP = [1, 2, 4, 8, 16, 32, 64, 128, 256]  # , 512, 1024, 2048, 4096, 8192, 16384, 32768]
 N_EVALS = 20
 
 # Load functions for CUDA benchmarking
@@ -112,19 +112,25 @@ def run_jaxadi_benchmarks():
             print(f"Running Jaxadi benchmark for {n_envs} environments with function {fn_name}...")
             inputs = sample_jaxadi_input(fn, n_envs)
 
+            # warmup
+            vmapped_fn(*inputs)
+
             for j in range(N_EVALS):
                 results[fn_name][i, j] = run_jaxadi_benchmark(vmapped_fn, inputs)
+
+            # remove the compiled function from the memory and inputs
+            del inputs
 
     return results
 
 
 def main():
-    jaxadi_results = run_jaxadi_benchmarks()
-    np.savez(f"{cur_dir}/jaxadi_benchmark_results.npz", **jaxadi_results)
-
     if PathsProvider.RUN_CUSADI:
         cuda_results = run_cuda_benchmarks()
         np.savez(f"{cur_dir}/cuda_benchmark_results.npz", **cuda_results)
+
+    jaxadi_results = run_jaxadi_benchmarks()
+    np.savez(f"{cur_dir}/jaxadi_benchmark_results.npz", **jaxadi_results)
 
     print("Benchmark results saved.")
 
