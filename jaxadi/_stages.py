@@ -115,9 +115,7 @@ def stage_generator(func: Function) -> str:
             workers[o_idx[0]] = OP_JAX_VALUE_DICT[op].format(workers[i_idx[0]])
         else:
             raise Exception("Unknown CasADi operation: " + str(op))
-        print(sum(len(s) for s in workers))
 
-    print("finished stages")
     return stages
 
 

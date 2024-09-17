@@ -7,7 +7,6 @@ def translate(func: Function, add_jit=False, add_import=False, num_threads=1) ->
 
     # get the shapes of input and output
     out_shapes = [func.size_out(i) for i in range(n_out)]
-    print(out_shapes)
     stages = stage_generator(func)
     stages = squeeze(stages, num_threads=num_threads)
     # get information about casadi function
