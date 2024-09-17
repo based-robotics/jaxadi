@@ -1,3 +1,4 @@
+import gc
 import os
 import time
 
@@ -73,6 +74,8 @@ def run_cuda_benchmarks():
     results["N_EVALS"] = N_EVALS
 
     for fn in benchmark_fns:
+        with torch.no_grad():
+            torch.cuda.empty_cache()
         fn_name = fn.name()
         for i, n_envs in enumerate(N_ENVS_SWEEP):
             print(f"Running CUDA benchmark for {n_envs} environments with function {fn_name}...")
@@ -128,6 +131,7 @@ def main():
     if PathsProvider.RUN_CUSADI:
         cuda_results = run_cuda_benchmarks()
         np.savez(f"{cur_dir}/cuda_benchmark_results.npz", **cuda_results)
+        gc.collect()
 
     jaxadi_results = run_jaxadi_benchmarks()
     np.savez(f"{cur_dir}/jaxadi_benchmark_results.npz", **jaxadi_results)
