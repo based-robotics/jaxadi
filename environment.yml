@@ -8,3 +8,6 @@ dependencies:
   - pip:
       - robot_descriptions
       - jax
+      - mujoco
+      - mujoco_mjx
+      - jaxadi

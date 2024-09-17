@@ -1,11 +1,13 @@
 <!-- # JaxADi -->
-<!-- TODO: ADD PATCHES -->
+
+[![CI](https://img.shields.io/github/actions/workflow/status/based-robotics/jaxadi/build.yaml?branch=master)](https://github.com/based-robotics/jaxadi/actions)
+[![PyPI version](https://img.shields.io/pypi/v/jaxadi?color=blue)](https://pypi.org/project/jaxadi/)
+[![PyPI downloads](https://img.shields.io/pypi/dm/jaxadi?color=blue)](https://pypistats.org/packages/jaxadi)
 
 <p align="center">
   <!-- Placeholder for a cool logo -->
   <img src="https://github.com/based-robotics/jaxadi/blob/master/_assets/_logo.png?raw=true" alt="JAXADI Logo" width="400"/>
 </p>
-
 
 **JaxADi** is a powerful Python library designed to bridge the gap between `casadi.Function` and JAX-compatible functions. By leveraging the strengths of both CasADi and JAX, JAXADI opens up exciting opportunities for building highly efficient, batchable code that can be executed seamlessly across CPUs, GPUs, and TPUs.
 
@@ -16,17 +18,17 @@ JAXADI can be particularly useful in scenarios involving:
 - Machine learning models with complex dynamics
 - Large-scale numerical optimizations
 
-
 ## Installation
 
 You can install JAXADI using pip:
+
 <!-- Change once it will be realeased -->
 
 ```bash
 pip install jaxadi
 ```
 
-For a complete environment setup, we recommend using Conda/Mamba:
+For a complete environment setup for examples, we recommend using Conda/Mamba:
 
 ```bash
 mamba env create -f environment.yml
@@ -67,24 +69,23 @@ output = jax_fn(input_x, input_y)
 
 JAXADI comes with several examples to help you get started:
 
-1. [Basic Translation](examples/00_translate.py): Learn how to translate CasADi functions to JAX. 
+1. [Basic Translation](examples/00_translate.py): Learn how to translate CasADi functions to JAX.
 
-2. [Lowering Operations](examples/01_lower.py): Understand the lowering process in JaxADi. 
+2. [Lowering Operations](examples/01_lower.py): Understand the lowering process in JaxADi.
 
-3. [Function Conversion](examples/02_convert.py): See how to fully convert CasADi functions to JAX. 
+3. [Function Conversion](examples/02_convert.py): See how to fully convert CasADi functions to JAX.
 
-4. [Pendulum Rollout](examples/03_pendulum_rollout.py): Batched rollout of the nonlinear passive nonlinear pendulum 
+4. [Pendulum Rollout](examples/03_pendulum_rollout.py): Batched rollout of the nonlinear passive nonlinear pendulum
 
-5. [Pinocchio Integration](examples/04_pinocchio.py): Explore how to convert Pinocchio-based CasADi functions to JAX. 
+5. [Pinocchio Integration](examples/04_pinocchio.py): Explore how to convert Pinocchio-based CasADi functions to JAX.
 
 6. [MJX Comparison](examples/05_mjx.py): Compare the transformed Pinnocchio forward kinematics with one provided by Mujoco MJX
 
 > **Note**: To run the Pinocchio and MJX examples, ensure you have them properly installed in your environment.
 
+## Performance Benchmarks
 
-<!-- ## Performance Benchmarks
-
-(Consider adding a section about performance comparisons between CasADi and JAXADI-translated functions) -->
+The process of benchmarking and evaluating the performance of Jaxadi is described in the [benchmarks](benchmarks/README.md) directory.
 
 <!-- ## Contributing
 
@@ -97,6 +98,5 @@ This project draws inspiration from [cusadi](https://github.com/se-hwan/cusadi),
 ## Contact
 
 For questions, issues, or suggestions, please [open an issue](https://github.com/based-robotics/jaxadi/issues) on our GitHub repository.
-
 
 We hope JAXADI empowers your numerical computing and optimization tasks! Happy coding!
