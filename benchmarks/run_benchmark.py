@@ -43,7 +43,7 @@ if PathsProvider.RUN_CUSADI:
 
     torch.manual_seed(0)
 
-N_ENVS_SWEEP = [2**i for i in range(20)]
+N_ENVS_SWEEP = [2**i for i in range(50)]
 N_EVALS = 20
 
 # Load functions for CUDA benchmarking
