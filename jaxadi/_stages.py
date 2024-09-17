@@ -78,16 +78,14 @@ def stage_generator(func: Function) -> str:
         operation = Operation()
         operation.op = op
         if op == OP_CONST:
-            workers[o_idx[0]
-                    ] = "jnp.array([" + OP_JAX_VALUE_DICT[op].format(const_instr[k]) + "])"
+            workers[o_idx[0]] = "jnp.array([" + OP_JAX_VALUE_DICT[op].format(const_instr[k]) + "])"
 
         elif op == OP_INPUT:
             this_shape = in_shapes[i_idx[0]]
             rows, cols = this_shape  # Get the shape of the output
             row_number = i_idx[1] % rows  # Compute row index for JAX
             column_number = i_idx[1] // rows  # Compute column index for JAX
-            workers[o_idx[0]] = OP_JAX_VALUE_DICT[op].format(
-                i_idx[0], row_number, column_number)
+            workers[o_idx[0]] = OP_JAX_VALUE_DICT[op].format(i_idx[0], row_number, column_number)
         elif op == OP_OUTPUT:
             operation = OutputOperation()
             operation.op = op
@@ -105,11 +103,9 @@ def stage_generator(func: Function) -> str:
             stage.ops.append(operation)
             stages.append(stage)
         elif op == OP_SQ:
-            workers[o_idx[0]] = "(" + \
-                OP_JAX_VALUE_DICT[op].format(workers[i_idx[0]]) + ")"
+            workers[o_idx[0]] = "(" + OP_JAX_VALUE_DICT[op].format(workers[i_idx[0]]) + ")"
         elif OP_JAX_VALUE_DICT[op].count("}") == 2:
-            workers[o_idx[0]] = "(" + OP_JAX_VALUE_DICT[op].format(
-                workers[i_idx[0]], workers[i_idx[1]]) + ")"
+            workers[o_idx[0]] = "(" + OP_JAX_VALUE_DICT[op].format(workers[i_idx[0]], workers[i_idx[1]]) + ")"
         elif OP_JAX_VALUE_DICT[op].count("}") == 1:
             workers[o_idx[0]] = OP_JAX_VALUE_DICT[op].format(workers[i_idx[0]])
         else:
@@ -177,8 +173,7 @@ def recursive_subs(stages: List[Stage], idx: int) -> str:
             if stages[i].ops[0].output_idx == number and stages[i].ops[0].op != OP_OUTPUT:
                 # Recursively replace the found work[<number>] with expanded value
                 stages[i].ops[0].value = recursive_subs(stages, i)
-                result = result.replace(
-                    f"work[{number}]", stages[i].ops[0].value)
+                result = result.replace(f"work[{number}]", stages[i].ops[0].value)
                 break
 
     return f"({result})"
