@@ -4,19 +4,23 @@
 [![PyPI version](https://img.shields.io/pypi/v/jaxadi?color=blue)](https://pypi.org/project/jaxadi/)
 [![PyPI downloads](https://img.shields.io/pypi/dm/jaxadi?color=blue)](https://pypistats.org/packages/jaxadi)
 
+
 <p align="center">
   <!-- Placeholder for a cool logo -->
   <a href="https://based-robotics.github.io/jaxadi/">
   <img src="https://github.com/based-robotics/jaxadi/blob/master/_assets/_logo.png?raw=true" alt="JAXADI Logo" width="400"/></a>
 </p>
 
-**JaxADi** is a powerful Python library designed to bridge the gap between `casadi.Function` and JAX-compatible functions. By leveraging the strengths of both CasADi and JAX, JAXADI opens up exciting opportunities for building highly efficient, batchable code that can be executed seamlessly across CPUs, GPUs, and TPUs.
+**JaxADi** is a Python library designed to bridge the gap between `casadi.Function` and JAX-compatible functions. By leveraging the strengths of both CasADi and JAX, JAXADI opens up exciting opportunities for building highly efficient, batchable code that can be executed seamlessly across CPUs, GPUs, and TPUs.
 
 JAXADI can be particularly useful in scenarios involving:
 
 - Robotics simulations
 - Optimal control problems
 - Machine learning models with complex dynamics
+
+Please go through the short demo to get fastly onboard <a href="https://colab.research.google.com/github/based-robotics/jaxadi/blob/master/examples/_demo.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" width="120" align="center"/></a>
+
 
 ## Installation
 
