@@ -19,7 +19,7 @@ JAXADI can be particularly useful in scenarios involving:
 - Optimal control problems
 - Machine learning models with complex dynamics
 
-Please go through the short demo to get fastly onboard <a href="https://colab.research.google.com/github/based-robotics/jaxadi/blob/master/examples/_demo.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" width="120" align="center"/></a>
+Please dive into quick tutorial to get you up to speed in no time <a href="https://colab.research.google.com/github/based-robotics/jaxadi/blob/master/examples/_demo.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" width="120" align="center"/></a>
 
 
 ## Installation
