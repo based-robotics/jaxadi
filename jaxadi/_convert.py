@@ -3,11 +3,12 @@ from typing import Any
 from collections.abc import Callable
 
 from ._declare import declare
-from ._translate import translate
+from ._graph import translate as graph_translate
+from ._expand import translate as expand_translate
 from ._compile import compile as compile_fn
 
 
-def convert(casadi_fn: Function, compile=False) -> Callable[..., Any]:
+def convert(casadi_fn: Function, translate=None, compile=False) -> Callable[..., Any]:
     """
     Convert given casadi function into python
     callable based on JAX backend, optionally
@@ -17,6 +18,10 @@ def convert(casadi_fn: Function, compile=False) -> Callable[..., Any]:
     :param compile (bool): Whether to AOT compile function
     :return (Callable[..., Any]): Resulting python function
     """
+
+    if translate is None:
+        translate = graph_translate
+    
     jax_str = translate(casadi_fn)
     jax_fn = declare(jax_str)
 

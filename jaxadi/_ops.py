@@ -94,6 +94,6 @@ OP_JAX_VALUE_DICT = {
     OP_ATANH: "jnp.arctanh(work[{0}])",
     OP_ATAN2: "jnp.arctan2(work[{0}], work[{1}])",
     OP_CONST: "{0:.16f}",
-    OP_INPUT: "inputs[{0}, {1}, {2}]",
+    OP_INPUT: "inputs[{0}][{1}, {2}]",
     OP_OUTPUT: "work[{0}][0]",
 }
