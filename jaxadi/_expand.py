@@ -201,6 +201,7 @@ def squeeze(stages: List[Stage], num_threads=1) -> List[Stage]:
     cmd = combine_outputs(new_stages)
     return cmd
 
+
 def translate(func: Function, add_jit=False, add_import=False) -> str:
     stages = stage_generator(func)
     stages = squeeze(stages)

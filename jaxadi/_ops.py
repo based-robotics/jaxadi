@@ -47,6 +47,7 @@ from casadi import (
     OP_TANH,
     OP_TWICE,
 )
+
 OP_JAX_VALUE_DICT = {
     OP_ASSIGN: "work[{0}]",
     OP_ADD: "work[{0}] + work[{1}]",
