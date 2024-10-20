@@ -21,6 +21,7 @@ def convert(casadi_fn: Function, translate=None, compile=False) -> Callable[...,
     if translate is None:
         translate = graph_translate
     
+    jax_str = translate(casadi_fn)
     jax_fn = declare(jax_str)
 
     if compile:
