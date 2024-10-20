@@ -3,7 +3,7 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 
-from jaxadi import convert, translate
+from jaxadi import convert
 
 # Set a fixed seed for reproducibility
 np.random.seed(42)
