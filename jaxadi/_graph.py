@@ -213,7 +213,7 @@ def expand_graph(func, graph, antigraph, output_map, values):
 
 def translate(func: Function, add_jit=False, add_import=False):
     graph, antigraph, output_map, values = create_graph(func)
-    graph, antigraph, output_map, values = expand_graph(func, graph, antigraph, output_map, values)
+    # graph, antigraph, output_map, values = expand_graph(func, graph, antigraph, output_map, values)
     heights = compute_heights(func, graph, antigraph)
 
     code = ""
