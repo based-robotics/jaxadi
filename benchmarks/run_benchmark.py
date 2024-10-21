@@ -43,11 +43,11 @@ if PathsProvider.RUN_CUSADI:
 
     torch.manual_seed(0)
 
-N_ENVS_SWEEP = [2**i for i in range(21)]
+N_ENVS_SWEEP = [2**i for i in range(1)]
 N_EVALS = 20
 
 # Load functions for CUDA benchmarking
-fn_files = ["fn_1e1.casadi", "fn_1e2.casadi"]
+fn_files = ["fn_1e1.casadi", "fn_1e2.casadi", "fn_1e3.casadi", "fn_1e4.casadi", "fn_1e5.casadi"]
 benchmark_fns = [Function.load(os.path.join(PathsProvider.FUNCTIONS_DIR, fn)) for fn in fn_files]
 
 
