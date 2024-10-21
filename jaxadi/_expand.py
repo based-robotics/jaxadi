@@ -1,5 +1,5 @@
 from typing import List, Any, Dict
-from ._ops import OP_JAX_VALUE_DICT
+from ._ops import OP_JAX_EXPAND_VALUE_DICT as OP_JAX_VALUE_DICT
 from casadi import OP_CONST, OP_INPUT, OP_OUTPUT, OP_SQ, Function
 import re
 from multiprocessing import Pool, cpu_count
@@ -141,7 +141,7 @@ def combine_outputs(stages: List[Stage]) -> str:
         rows = "[" + ", ".join(row_indices) + "]"
         columns = "[" + ", ".join(column_indices) + "]"
         values_str = ", ".join(values)
-        command = f"    o[{output_idx}] = o[{output_idx}].at[({rows}, {columns})].set([{values_str}])"
+        command = f"    outputs[{output_idx}] = outputs[{output_idx}].at[({rows}, {columns})].set([{values_str}])"
         commands.append(command)
 
     # Combine all the commands into a single string
