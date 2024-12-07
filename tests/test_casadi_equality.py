@@ -5,6 +5,9 @@ import pytest
 
 from jaxadi import convert
 
+from jaxadi import graph_translate
+from jaxadi import expand_translate
+
 # Set a fixed seed for reproducibility
 np.random.seed(42)
 
@@ -32,6 +35,29 @@ def test_simo_trig():
     casadi_f = ca.Function("simo_trig", [x], [ca.sin(x), ca.cos(x)])
     jax_f = convert(casadi_f)
     x_val = np.random.randn(1, 1)
+    compare_results(casadi_f, jax_f, x_val)
+
+
+def test_all_zeros():
+    X = ca.SX.sym("x", 2)
+    A = np.zeros((2, 2))
+    Y = ca.jacobian(A @ X, X)
+
+    casadi_f = ca.Function("foo", [X], [Y])
+    jax_f = convert(casadi_f)
+    x_val = np.random.randn(2, 1)
+    compare_results(casadi_f, jax_f, x_val)
+
+
+def test_structural_zeros():
+    X = ca.SX.sym("x", 2)
+    A = np.ones((2, 2))
+    A[1, :] = 0.0
+    Y = ca.jacobian(A @ X, X)
+
+    casadi_f = ca.Function("foo", [X], [ca.densify(Y)])
+    jax_f = convert(casadi_f, translate=expand_translate)
+    x_val = np.random.randn(2, 1)
     compare_results(casadi_f, jax_f, x_val)
 
 

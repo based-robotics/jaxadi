@@ -6,6 +6,7 @@ from ._declare import declare
 from ._graph import translate as graph_translate
 from ._expand import translate as expand_translate
 from ._compile import compile as compile_fn
+from ._preprocess import densify
 
 
 def convert(casadi_fn: Function, translate=None, compile=False) -> Callable[..., Any]:
@@ -20,6 +21,8 @@ def convert(casadi_fn: Function, translate=None, compile=False) -> Callable[...,
     """
     if translate is None:
         translate = graph_translate
+
+    casadi_fn = densify(casadi_fn)
 
     jax_str = translate(casadi_fn)
     jax_fn = declare(jax_str)
