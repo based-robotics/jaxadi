@@ -16,7 +16,8 @@ import numpy as np
 import pinocchio as pin
 import pinocchio.casadi as cpin
 from robot_descriptions.panda_description import URDF_PATH
-from jaxadi import convert, translate
+from jaxadi import convert
+from jaxadi import graph_translate as translate
 
 # Load the Panda robot model
 model = pin.buildModelFromUrdf(URDF_PATH)
