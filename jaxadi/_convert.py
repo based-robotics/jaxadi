@@ -1,11 +1,11 @@
-from casadi import Function
-from typing import Any
 from collections.abc import Callable
+from typing import Any
 
+from casadi import Function
+
+from ._compile import compile as compile_fn
 from ._declare import declare
 from ._graph import translate as graph_translate
-from ._expand import translate as expand_translate
-from ._compile import compile as compile_fn
 from ._preprocess import densify
 
 

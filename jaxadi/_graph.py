@@ -4,33 +4,20 @@ creation, traversion, code-generation and
 compression/fusion if necessary/possible
 """
 
-import random
-import re
-from collections import deque
-
 from casadi import OP_CONST, OP_INPUT, OP_OUTPUT, OP_SQ, Function
 
 from ._ops import OP_JAX_VALUE_DICT
 
 
-def test_and_compress(s):
-    # Step 1: Check if the string has the desired form using a regex
-    pattern = re.compile(r"\[\s*work\[(\d+)\]\s*\*\s*work\[(\d+)\](?:\s*,\s*work\[(\d+)\]\s*\*\s*work\[(\d+)\])*\s*\]")
+def sort_by_height(graph: list[list[int]], antigraph: list[list[int]], heights: list[int]):
+    """
+    Sort graph nodes by their heights.
 
-    if not pattern.fullmatch(s.strip()):
-        return s
-
-    # Step 2.1: Extract the indices from the matches
-    matches = re.findall(r"work\[(\d+)\]\s*\*\s*work\[(\d+)\]", s)
-    left_indices = [int(m[0]) for m in matches]
-    right_indices = [int(m[1]) for m in matches]
-
-    # Construct the compressed string
-    compressed_string = f"jnp.multiply(work[jnp.array({left_indices})], work[jnp.array({right_indices})])"
-    return compressed_string
-
-
-def sort_by_height(graph, antigraph, heights):
+    :param graph: Adjacency vector
+    :param antigraph: Adjacency vector of antigraph
+    :param heights: Heights of nodes
+    :return: List of nodes sorted by height
+    """
     nodes = [[] for i in range(max(heights) + 1)]
     for i, h in enumerate(heights):
         nodes[h].append(i)
@@ -38,7 +25,27 @@ def sort_by_height(graph, antigraph, heights):
     return nodes
 
 
-def codegen(graph, antigraph, heights, output_map, values):
+def codegen(
+    graph: list[list[int]],
+    antigraph: list[list[int]],
+    heights: list[int],
+    output_map: dict[int, tuple[int, int, int]],
+    values: list[str],
+) -> str:
+    """
+    Main codegeneration function.
+    Given the order of the nodes
+    with respect to their height
+    in the computation graph,
+    merge work nodes in the same.
+
+    :param graph: Adjacency vector
+    :param antigraph: Adjacency vector of antigraph
+    :param heights: Heights of nodes
+    :param output_map: Output info -> node: o_idx, row, col
+    :param values: Values of the nodes
+    :return: Merged layers
+    """
     sorted_nodes = sort_by_height(graph, antigraph, heights)
     code = ""
     outputs = {}
@@ -46,7 +53,7 @@ def codegen(graph, antigraph, heights, output_map, values):
         indices = []
         assignment = "["
         for node in layer:
-            if len(graph[node]) == 0 and not node in output_map:
+            if len(graph[node]) == 0 and node not in output_map:
                 continue
             if node in output_map:
                 oo = output_map[node]
@@ -63,7 +70,6 @@ def codegen(graph, antigraph, heights, output_map, values):
         if len(indices) == 0:
             continue
         assignment += "]"
-        # assignment = test_and_compress(assignment)
         code += f"    work = work.at[jnp.array({indices})].set({assignment})\n"
 
     for k, v in outputs.items():
@@ -72,11 +78,19 @@ def codegen(graph, antigraph, heights, output_map, values):
     return code
 
 
-def compute_heights(func, graph, antigraph):
+def compute_heights(func: Function, graph: list[list[int]], antigraph: list[list[int]]) -> list[int]:
+    """
+    Heights computation function
+    based on the simple BFS.
+
+    :param func: Reference casadi function
+    :param graph: Adjacency vector
+    :param antigraph: Adjacency vector of antigraph
+    :return: Vertices heights
+    """
     heights = [0 for _ in range(len(graph))]
     current_layer = set()
     next_layer = set()
-    # queue = deque()
 
     for i in range(func.n_instructions()):
         op = func.instruction_id(i)
@@ -97,6 +111,13 @@ def compute_heights(func, graph, antigraph):
 
 
 def create_graph(func: Function):
+    """
+    Create the computation graph
+    of the given casadi function.
+
+    :param func: Reference casadi function
+    :return: Graph and its properties
+    """
     N = func.n_instructions()
     graph = [[] for _ in range(N)]
     values = ["" for _ in range(N)]
@@ -150,60 +171,18 @@ def create_graph(func: Function):
     return graph, antigraph, output_map, values
 
 
-def expand_graph(func, graph, antigraph, output_map, values):
-    heights = compute_heights(func, graph, antigraph)
-    sorted_nodes = sort_by_height(graph, antigraph, heights)
+def translate(func: Function, add_jit: bool = False, add_import: bool = False) -> str:
+    """
+    Generate the string with jax
+    equivalent of the given casadi
+    function with some optionals.
 
-    # Calculate the average number of vertices per layer
-    total_vertices = sum(len(layer) for layer in sorted_nodes)
-    avg_vertices = total_vertices / len(sorted_nodes)
-
-    new_graph = [[] for _ in range(len(graph))]
-    new_antigraph = [[] for _ in range(len(antigraph))]
-
-    # Iterate over layers
-    for layer in sorted_nodes:
-        expand_layer = len(layer) < avg_vertices and not any(node in output_map for node in layer)
-
-        if expand_layer:
-            # Expand nodes and update their values
-            for node in layer:
-                value_expr = values[node]
-                expanded_expr = re.sub(r"work\[(\d+)\]", lambda m: f"({values[int(m.group(1))]})", value_expr)
-                values[node] = expanded_expr
-
-            # Recalculate dependencies for expanded nodes
-            for node in layer:
-                new_parents = set()
-                for parent in antigraph[node]:
-                    new_parents.update(new_antigraph[parent])  # Use updated parents
-
-                # Update new_antigraph and new_graph accordingly
-                new_antigraph[node] = list(new_parents)
-
-                for new_parent in new_parents:
-                    new_graph[new_parent].append(node)
-
-                # Retain the original child relationships
-                for child in graph[node]:
-                    new_graph[node].append(child)
-                    new_antigraph[child].append(node)
-        else:
-            # Maintain existing connections for nodes without expansion
-            for node in layer:
-                for parent in antigraph[node]:
-                    new_graph[parent].append(node)
-                    new_antigraph[node].append(parent)
-                for child in graph[node]:
-                    new_graph[node].append(child)
-                    new_antigraph[child].append(node)
-
-    return new_graph, new_antigraph, output_map, values
-
-
-def translate(func: Function, add_jit=False, add_import=False):
+    :param func: Reference casadi function
+    :param add_jit: Add `@jit` to source str
+    :param add_import: Add `import jax.numpy as jnp` to source str
+    :return: Jax equivalent code string
+    """
     graph, antigraph, output_map, values = create_graph(func)
-    # graph, antigraph, output_map, values = expand_graph(func, graph, antigraph, output_map, values)
     heights = compute_heights(func, graph, antigraph)
 
     code = ""

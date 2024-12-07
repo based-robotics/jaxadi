@@ -143,6 +143,6 @@ OP_JAX_EXPAND_VALUE_DICT = {
     OP_ATANH: "jnp.arctanh({0})",
     OP_ATAN2: "jnp.arctan2({0}, {1})",
     OP_CONST: "{0:.16f}",
-    OP_INPUT: "inputs[{0}][{1}, {2}]",
+    OP_INPUT: "inputs[{0}][{1}]",
     OP_OUTPUT: "{0}[0]",
 }
