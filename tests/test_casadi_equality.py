@@ -31,10 +31,10 @@ def compare_results(casadi_f, jax_f, *inputs):
 
 
 def test_simo_trig():
-    x = ca.SX.sym("x", 1, 1)
+    x = ca.SX.sym("x", 1)
     casadi_f = ca.Function("simo_trig", [x], [ca.sin(x), ca.cos(x)])
     jax_f = convert(casadi_f)
-    x_val = np.random.randn(1, 1)
+    x_val = np.random.randn(1)
     compare_results(casadi_f, jax_f, x_val)
 
 
@@ -56,16 +56,16 @@ def test_structural_zeros():
     Y = ca.jacobian(A @ X, X)
 
     casadi_f = ca.Function("foo", [X], [ca.densify(Y)])
-    jax_f = convert(casadi_f, translate=expand_translate)
+    jax_f = convert(casadi_f)
     x_val = np.random.randn(2, 1)
     compare_results(casadi_f, jax_f, x_val)
 
 
 def test_simo_poly():
-    x = ca.SX.sym("x", 1, 1)
+    x = ca.SX.sym("x", 1)
     casadi_f = ca.Function("simo_poly", [x], [x**2, x**3, ca.sqrt(x)])
     jax_f = convert(casadi_f)
-    x_val = np.random.randn(1, 1)
+    x_val = np.random.randn(1)
     x_val = np.abs(x_val)  # Ensure positive for sqrt
     compare_results(casadi_f, jax_f, x_val)
 
@@ -195,12 +195,12 @@ def test_sum1():
 
 
 def test_dot():
-    x = ca.SX.sym("x", 3, 1)
-    y = ca.SX.sym("y", 3, 1)
+    x = ca.SX.sym("x", 3)
+    y = ca.SX.sym("y", 3)
     casadi_f = ca.Function("dot", [x, y], [ca.dot(x, y)])
     jax_f = convert(casadi_f)
-    x_val = np.random.randn(3, 1)
-    y_val = np.random.randn(3, 1)
+    x_val = np.random.randn(3)
+    y_val = np.random.randn(3)
     compare_results(casadi_f, jax_f, x_val, y_val)
 
 

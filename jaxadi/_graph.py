@@ -99,10 +99,10 @@ def compute_heights(func, graph, antigraph):
 def create_graph(func: Function):
     N = func.n_instructions()
     graph = [[] for _ in range(N)]
-    values = [None for _ in range(N)]
+    values = ["" for _ in range(N)]
     antigraph = [[] for _ in range(N)]
     output_map = {}
-    workers = [None for _ in range(func.sz_w())]
+    workers = [0 for _ in range(func.sz_w())]
 
     for i in range(N):
         op = func.instruction_id(i)
@@ -113,12 +113,7 @@ def create_graph(func: Function):
             values[i] = "jnp.array([" + OP_JAX_VALUE_DICT[op].format(func.instruction_constant(i)) + "])"
             workers[o_idx[0]] = i
         elif op == OP_INPUT:
-            this_shape = func.size_in(i_idx[0])
-            rows, cols = this_shape  # Get the shape of the output
-            row_number = i_idx[1] % rows  # Compute row index for JAX
-            column_number = i_idx[1] // rows  # Compute column index for JAX
-
-            values[i] = OP_JAX_VALUE_DICT[op].format(i_idx[0], row_number, column_number)
+            values[i] = OP_JAX_VALUE_DICT[op].format(i_idx[0], i_idx[1])
             workers[o_idx[0]] = i
         elif op == OP_OUTPUT:
             rows, cols = func.size_out(o_idx[0])
@@ -131,11 +126,6 @@ def create_graph(func: Function):
             parent = workers[i_idx[0]]
             graph[parent].append(i)
             antigraph[i].append(parent)
-            # rows, cols = func.size_out(o_idx[0])
-            # row_number = o_idx[1] % rows  # Compute row index for JAX
-            # column_number = o_idx[1] // rows  # Compute column index for JAX
-            # output_map[i] = (o_idx[0], row_number, column_number)
-            # values[i] = OP_JAX_VALUE_DICT[op].format(workers[i_idx[0]])
         elif op == OP_SQ:
             values[i] = OP_JAX_VALUE_DICT[op].format(workers[i_idx[0]])
             graph[workers[i_idx[0]]].append(i)
@@ -222,7 +212,7 @@ def translate(func: Function, add_jit=False, add_import=False):
     if add_jit:
         code += "@jax.jit\n"
     code += f"def evaluate_{func.name()}(*args):\n"
-    code += "    inputs = [jnp.expand_dims(jnp.array(arg), axis=-1) for arg in args]\n"
+    code += "    inputs = [jnp.expand_dims(jnp.ravel(jnp.array(arg).T), axis=-1) for arg in args]\n"
     code += f"    outputs = [jnp.zeros(out) for out in {[func.size_out(i) for i in range(func.n_out())]}]\n"
     code += f"    work = jnp.zeros(({func.n_instructions()}, 1))\n"
     code += codegen(graph, antigraph, heights, output_map, values)
