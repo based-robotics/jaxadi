@@ -8,7 +8,7 @@ capabilities for the same function.
 
 import casadi as cs
 
-from jaxadi import translate
+from jaxadi import graph_translate as translate
 
 # define input variables for the function
 x = cs.SX.sym("x", 3)

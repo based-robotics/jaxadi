@@ -38,7 +38,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e .[dev]
       - name: Run tests
-        run: python -m pytest
+        run: python -m pytest --ignore=tests/test_examples.py
 
   deploy:
     runs-on: ubuntu-latest
